@@ -81,6 +81,17 @@ struct ExpandoRenderCallback
   get_number_t get_number;  // Callback function to get a number
 };
 
+/**
+ * struct ExpandoRenderData - Render Data + Callback Functions
+ */
+struct ExpandoRenderData
+{
+  int                                 did;     ///< Domain ID, #ExpandoDomain
+  const struct ExpandoRenderCallback *erc;     ///< Render callback functions
+  void                               *obj;     ///< Object to pass to callback function
+  int                                 flags;   ///< Flags  to pass to callback function
+};
+
 int node_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *erc,
                 struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
 

@@ -195,6 +195,13 @@ bool smime_class_valid_passphrase(void)
 static void smime_command(struct Buffer *buf, struct SmimeCommandContext *cctx,
                           const struct Expando *exp)
 {
+  struct ExpandoRenderData SmimeCommandRenderData[] = {
+    // clang-format off
+    { ED_SMIME_CMD, SmimeCommandRenderCallbacks, cctx, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   expando_render(exp, SmimeCommandRenderCallbacks, cctx, MUTT_FORMAT_NO_FLAGS,
                  buf->dsize, buf);
   mutt_debug(LL_DEBUG2, "%s\n", buf_string(buf));
