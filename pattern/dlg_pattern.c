@@ -114,6 +114,13 @@ static int pattern_make_entry(struct Menu *menu, int line, int max_cols, struct 
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct ExpandoRenderData PatternRenderData[] = {
+    // clang-format off
+    { ED_PATTERN, PatternRenderCallbacks, entry, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_pattern_format = cs_subset_expando(NeoMutt->sub, "pattern_format");
   return expando_filter(c_pattern_format, PatternRenderCallbacks, entry,
                         MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);

@@ -814,6 +814,13 @@ int mutt_make_string(struct Buffer *buf, size_t max_cols,
   efi.msg_in_pager = inpgr;
   efi.pager_progress = progress;
 
+  struct ExpandoRenderData IndexRenderData[] = {
+    // clang-format off
+    { ED_EMAIL, IndexRenderCallbacks, &efi, flags },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   return expando_filter(exp, IndexRenderCallbacks, &efi, flags, max_cols, EnvList, buf);
 }
 

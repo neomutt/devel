@@ -60,6 +60,7 @@
  */
 
 #include "config.h"
+#include <stddef.h>
 #include "mutt/lib.h"
 #include "config/lib.h"
 #include "email/lib.h"
@@ -83,6 +84,13 @@ static int cbar_recalc(struct MuttWindow *win)
 {
   struct Buffer *buf = buf_pool_get();
   struct ComposeSharedData *shared = win->parent->wdata;
+
+  struct ExpandoRenderData ComposeRenderData[] = {
+    // clang-format off
+    { ED_COMPOSE, ComposeRenderCallbacks, shared, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
 
   const struct Expando *c_compose_format = cs_subset_expando(shared->sub, "compose_format");
   expando_filter(c_compose_format, ComposeRenderCallbacks, shared,

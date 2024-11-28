@@ -1026,6 +1026,13 @@ struct NntpAccountData *nntp_select_server(struct Mailbox *m, const char *server
   /* load .newsrc */
   if (rc >= 0)
   {
+    struct ExpandoRenderData NntpRenderData[] = {
+      // clang-format off
+      { ED_NNTP, NntpRenderCallbacks, adata, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     const struct Expando *c_newsrc = cs_subset_expando(NeoMutt->sub, "newsrc");
     struct Buffer *buf = buf_pool_get();
     expando_filter(c_newsrc, NntpRenderCallbacks, adata, MUTT_FORMAT_NO_FLAGS,

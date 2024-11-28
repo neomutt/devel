@@ -33,6 +33,7 @@
  */
 
 #include "config.h"
+#include <stddef.h>
 #include "status.h"
 #include "expando/lib.h"
 #include "expando_status.h"
@@ -52,6 +53,13 @@ void menu_status_line(struct Buffer *buf, struct IndexSharedData *shared,
                       struct Menu *menu, int max_cols, const struct Expando *exp)
 {
   struct MenuStatusLineData data = { shared, menu };
+
+  struct ExpandoRenderData StatusRenderData[] = {
+    // clang-format off
+    { ED_GLOBAL, StatusRenderCallbacks, &data, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
 
   expando_filter(exp, StatusRenderCallbacks, &data, MUTT_FORMAT_NO_FLAGS,
                  max_cols, EnvList, buf);

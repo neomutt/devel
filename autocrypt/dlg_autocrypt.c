@@ -132,6 +132,13 @@ static int autocrypt_make_entry(struct Menu *menu, int line, int max_cols, struc
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct ExpandoRenderData AutocryptRenderData[] = {
+    // clang-format off
+    { ED_AUTOCRYPT, AutocryptRenderCallbacks, *pentry, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_autocrypt_acct_format = cs_subset_expando(NeoMutt->sub, "autocrypt_acct_format");
   return expando_filter(c_autocrypt_acct_format, AutocryptRenderCallbacks,
                         *pentry, MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);

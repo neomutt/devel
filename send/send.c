@@ -690,6 +690,13 @@ static void mutt_make_greeting(struct Email *e, FILE *fp_out, struct ConfigSubse
 
   struct Buffer *buf = buf_pool_get();
 
+  struct ExpandoRenderData GreetingRenderData[] = {
+    // clang-format off
+    { ED_ENVELOPE, GreetingRenderCallbacks, e, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   expando_filter(c_greeting, GreetingRenderCallbacks, e, TOKEN_NO_FLAGS,
                  buf->dsize, EnvList, buf);
 

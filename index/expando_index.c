@@ -725,6 +725,13 @@ static void email_index_hook(const struct ExpandoNode *node, void *data,
   if (!exp)
     return;
 
+  struct ExpandoRenderData IndexRenderData[] = {
+    // clang-format off
+    { ED_EMAIL, IndexRenderCallbacks, data, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   expando_filter(exp, IndexRenderCallbacks, data, MUTT_FORMAT_NO_FLAGS,
                  buf->dsize, EnvList, buf);
 }

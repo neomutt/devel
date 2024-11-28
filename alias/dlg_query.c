@@ -157,6 +157,13 @@ static int query_make_entry(struct Menu *menu, int line, int max_cols, struct Bu
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct ExpandoRenderData AliasRenderData[] = {
+    // clang-format off
+    { ED_ALIAS, AliasRenderCallbacks, av, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_query_format = cs_subset_expando(mdata->sub, "query_format");
   return expando_filter(c_query_format, QueryRenderCallbacks, av,
                         MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);

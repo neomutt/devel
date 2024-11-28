@@ -318,6 +318,13 @@ static void make_sidebar_entry(char *buf, size_t buflen, int width,
 {
   struct SidebarData sdata = { sbe, shared };
 
+  struct ExpandoRenderData SidebarRenderData[] = {
+    // clang-format off
+    { ED_SIDEBAR, SidebarRenderCallbacks, &sdata, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   struct Buffer *tmp = buf_pool_get();
   const struct Expando *c_sidebar_format = cs_subset_expando(NeoMutt->sub, "sidebar_format");
   expando_filter(c_sidebar_format, SidebarRenderCallbacks, &sdata,

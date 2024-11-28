@@ -143,10 +143,18 @@ static int attach_make_entry(struct Menu *menu, int line, int max_cols, struct B
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct AttachPtr *aptr = actx->idx[actx->v2r[line]];
+
+  struct ExpandoRenderData AttachRenderData[] = {
+    // clang-format off
+    { ED_ATTACH, AttachRenderCallbacks, aptr, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_attach_format = cs_subset_expando(NeoMutt->sub, "attach_format");
-  return expando_filter(c_attach_format, AttachRenderCallbacks,
-                        (actx->idx[actx->v2r[line]]), MUTT_FORMAT_ARROWCURSOR,
-                        max_cols, EnvList, buf);
+  return expando_filter(c_attach_format, AttachRenderCallbacks, aptr,
+                        MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);
 }
 
 /**

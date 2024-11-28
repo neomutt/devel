@@ -531,10 +531,24 @@ static int folder_make_entry(struct Menu *menu, int line, int max_cols, struct B
 
   if (OptNews)
   {
+    struct ExpandoRenderData GroupIndexRenderData[] = {
+      // clang-format off
+      { ED_FOLDER, GroupIndexRenderCallbacks, &folder, MUTT_FORMAT_ARROWCURSOR },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     const struct Expando *c_group_index_format = cs_subset_expando(NeoMutt->sub, "group_index_format");
     return expando_filter(c_group_index_format, GroupIndexRenderCallbacks, &folder,
                           MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);
   }
+
+  struct ExpandoRenderData FolderRenderData[] = {
+    // clang-format off
+    { ED_FOLDER, FolderRenderCallbacks, &folder, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
 
   if (bstate->is_mailbox_list)
   {

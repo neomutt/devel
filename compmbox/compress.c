@@ -302,6 +302,13 @@ static bool execute_command(struct Mailbox *m, const struct Expando *exp, const 
   mutt_endwin();
   fflush(stdout);
 
+  struct ExpandoRenderData CompressRenderData[] = {
+    // clang-format off
+    { ED_COMPRESS, CompressRenderCallbacks, m, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   expando_render(exp, CompressRenderCallbacks, m, MUTT_FORMAT_NO_FLAGS,
                  sys_cmd->dsize, sys_cmd);
 

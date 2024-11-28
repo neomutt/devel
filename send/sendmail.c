@@ -311,6 +311,13 @@ int mutt_invoke_sendmail(struct Mailbox *m, struct AddressList *from,
   {
     struct Buffer *cmd = buf_pool_get();
 
+    struct ExpandoRenderData NntpRenderData[] = {
+      // clang-format off
+      { ED_NNTP, NntpRenderCallbacks, NULL, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     const struct Expando *c_inews = cs_subset_expando(sub, "inews");
     expando_filter(c_inews, NntpRenderCallbacks, 0, MUTT_FORMAT_NO_FLAGS,
                    cmd->dsize, EnvList, cmd);

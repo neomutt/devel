@@ -122,6 +122,13 @@ static int crypt_make_entry(struct Menu *menu, int line, int max_cols, struct Bu
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct ExpandoRenderData PgpEntryGpgmeRenderData[] = {
+    // clang-format off
+    { ED_PGP, PgpEntryGpgmeRenderCallbacks, &entry, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_pgp_entry_format = cs_subset_expando(NeoMutt->sub, "pgp_entry_format");
   return expando_filter(c_pgp_entry_format, PgpEntryGpgmeRenderCallbacks,
                         &entry, MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);

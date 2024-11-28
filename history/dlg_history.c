@@ -104,6 +104,13 @@ static int history_make_entry(struct Menu *menu, int line, int max_cols, struct 
       max_cols -= (mutt_strwidth(c_arrow_string) + 1);
   }
 
+  struct ExpandoRenderData HistoryRenderData[] = {
+    // clang-format off
+    { ED_HISTORY, HistoryRenderCallbacks, &h, MUTT_FORMAT_ARROWCURSOR },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   const struct Expando *c_history_format = cs_subset_expando(NeoMutt->sub, "history_format");
   return expando_filter(c_history_format, HistoryRenderCallbacks, &h,
                         MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);
