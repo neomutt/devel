@@ -34,19 +34,17 @@
 
 /**
  * node_render - Render a tree of ExpandoNodes into a string
- * @param node     Root of tree
- * @param erc      Expando Render Callback functions
- * @param buf      Buffer for the result
- * @param max_cols Maximum number of screen columns to use
- * @param data     Private data
- * @param flags    Flags to control behaviour
+ * @param[in]  node     Root of tree
+ * @param[in]  rdata    Render data
+ * @param[in]  max_cols Maximum number of screen columns to use
+ * @param[out] buf      Buffer for the result
  * @retval num Number of screen columns used
  */
-int node_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *erc,
-                struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags)
+int node_render(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata,
+                int max_cols, struct Buffer *buf)
 {
   if (!node || !node->render)
     return 0;
 
-  return node->render(node, erc, buf, max_cols, data, flags);
+  return node->render(node, rdata, max_cols, buf);
 }

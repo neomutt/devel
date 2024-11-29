@@ -93,7 +93,7 @@ void test_expando_colors_render(void)
     check_node_text(node_get_child(exp->node, 1), " - ");
     check_node_expando(node_get_child(exp->node, 2), NULL, NULL);
 
-    const struct ExpandoRenderCallback render[] = {
+    const struct ExpandoRenderCallback TestCallbacks[] = {
       { 1, 0, simple_s },
       { 1, 1, simple_C },
       { -1, -1, NULL },
@@ -114,8 +114,15 @@ void test_expando_colors_render(void)
     expected[14] = MUTT_SPECIAL_INDEX;
     expected[15] = MT_COLOR_INDEX;
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_INDEX },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_INDEX, buf->dsize, buf);
+    expando_render(exp, TestRenderData, buf->dsize, buf);
 
     const int expected_width = mutt_str_len(expected) - 8;
     TEST_CHECK(mutt_strwidth(expected) == expected_width);
@@ -157,7 +164,7 @@ void test_expando_colors_render(void)
     check_node_text(node_get_child(left, 1), " ");
     check_node_expando(right, NULL, NULL);
 
-    const struct ExpandoRenderCallback render[] = {
+    const struct ExpandoRenderCallback TestCallbacks[] = {
       { 1, 0, simple_s },
       { 1, 1, simple_C },
       { -1, -1, NULL },
@@ -178,8 +185,15 @@ void test_expando_colors_render(void)
     expected[14] = MUTT_SPECIAL_INDEX;
     expected[15] = MT_COLOR_INDEX;
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_INDEX },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_INDEX, 8, buf);
+    expando_render(exp, TestRenderData, 8, buf);
 
     const int expected_width = mutt_str_len(expected) - 8;
     TEST_CHECK(mutt_strwidth(expected) == expected_width);
@@ -196,7 +210,7 @@ void test_expando_colors_render(void)
     expected2[13] = MT_COLOR_INDEX;
 
     buf_reset(buf);
-    expando_render(exp, render, &data, MUTT_FORMAT_INDEX, 6, buf);
+    expando_render(exp, TestRenderData, 6, buf);
 
     const int expected_width2 = mutt_str_len(expected2) - 8;
     TEST_CHECK(mutt_strwidth(expected2) == expected_width2);
@@ -239,7 +253,7 @@ void test_expando_colors_render(void)
     check_node_text(node_get_child(left, 1), " ");
     check_node_expando(right, NULL, NULL);
 
-    const struct ExpandoRenderCallback render[] = {
+    const struct ExpandoRenderCallback TestCallbacks[] = {
       { 1, 0, simple_s },
       { 1, 1, simple_C },
       { -1, -1, NULL },
@@ -260,8 +274,15 @@ void test_expando_colors_render(void)
     expected[12] = MUTT_SPECIAL_INDEX;
     expected[13] = MT_COLOR_INDEX;
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_INDEX },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_INDEX, 6, buf);
+    expando_render(exp, TestRenderData, 6, buf);
 
     const int expected_width = mutt_str_len(expected) - 8;
     TEST_CHECK(mutt_strwidth(expected) == expected_width);
@@ -304,7 +325,7 @@ void test_expando_colors_render(void)
     check_node_text(node_get_child(left, 1), " ");
     check_node_expando(right, NULL, NULL);
 
-    const struct ExpandoRenderCallback render[] = {
+    const struct ExpandoRenderCallback TestCallbacks[] = {
       { 1, 0, simple_s },
       { 1, 1, simple_C },
       { -1, -1, NULL },
@@ -315,9 +336,16 @@ void test_expando_colors_render(void)
       .C = 1,
     };
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_INDEX },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     char expected[] = "\x0e\x63Tá \x0e\x5b\x0e\x63Táéí\x0e\x5b";
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_INDEX, 7, buf);
+    expando_render(exp, TestRenderData, 7, buf);
 
     TEST_CHECK_NUM_EQ(mutt_strwidth(expected), 7);
     // TEST_CHECK_STR_EQ(buf_string(buf), expected);

@@ -102,7 +102,7 @@ void test_expando_nested_if_else_render(void)
   check_node_text(node_true, "Y");
   check_node_text(node_false, "NONE");
 
-  const struct ExpandoRenderCallback render[] = {
+  const struct ExpandoRenderCallback TestCallbacks[] = {
     { 1, 0, nested_x },
     { 1, 1, nested_y },
     { -1, -1, NULL },
@@ -114,8 +114,15 @@ void test_expando_nested_if_else_render(void)
     .y = 0,
   };
 
+  struct ExpandoRenderData TestRenderDataX[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data_X, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   struct Buffer *buf = buf_pool_get();
-  expando_render(exp, render, &data_X, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderDataX, buf->dsize, buf);
 
   TEST_CHECK_STR_EQ(buf_string(buf), expected_X);
 
@@ -125,8 +132,15 @@ void test_expando_nested_if_else_render(void)
     .y = 1,
   };
 
+  struct ExpandoRenderData TestRenderDataY[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data_Y, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   buf_reset(buf);
-  expando_render(exp, render, &data_Y, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderDataY, buf->dsize, buf);
 
   TEST_CHECK_STR_EQ(buf_string(buf), expected_Y);
 
@@ -136,8 +150,15 @@ void test_expando_nested_if_else_render(void)
     .y = 1,
   };
 
+  struct ExpandoRenderData TestRenderDataXY[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data_XY, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   buf_reset(buf);
-  expando_render(exp, render, &data_XY, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderDataXY, buf->dsize, buf);
 
   TEST_CHECK_STR_EQ(buf_string(buf), expected_XY);
 
@@ -147,8 +168,15 @@ void test_expando_nested_if_else_render(void)
     .y = 0,
   };
 
+  struct ExpandoRenderData TestRenderData[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data_NONE, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   buf_reset(buf);
-  expando_render(exp, render, &data_NONE, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderData, buf->dsize, buf);
 
   TEST_CHECK_STR_EQ(buf_string(buf), expected_NONE);
 

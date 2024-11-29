@@ -821,7 +821,7 @@ int mutt_make_string(struct Buffer *buf, size_t max_cols,
     // clang-format on
   };
 
-  return expando_filter(exp, IndexRenderCallbacks, &efi, flags, max_cols, EnvList, buf);
+  return expando_filter(exp, IndexRenderData, max_cols, EnvList, buf);
 }
 
 /**

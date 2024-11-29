@@ -36,24 +36,40 @@
 #include "render.h"
 
 /**
- * find_get_number - Find a get_number() callback function
- * @param erc   Render callbacks to search
+ * find_render_data - Find the Render Data for a DID
+ * @param rdata Render Data
  * @param did   Domain ID to match
- * @param uid   Unique ID to match
- * @retval ptr Matching Render data
+ * @retval ptr Matching Render Data
  */
-const struct ExpandoRenderCallback *find_get_number(const struct ExpandoRenderCallback *erc,
-                                                    int did, int uid)
+const struct ExpandoRenderData *find_render_data(const struct ExpandoRenderData *rdata, int did)
 {
-  if (!erc)
+  if (!rdata)
     return NULL;
 
-  for (; erc->did != -1; erc++)
+  for (; rdata->did != -1; rdata++)
   {
-    if ((erc->did == did) && (erc->uid == uid) && erc->get_number)
-    {
-      return erc;
-    }
+    if (rdata->did == did)
+      return rdata;
+  }
+
+  return NULL;
+}
+
+/**
+ * find_get_number - Find a get_number() callback function
+ * @param rcall Render Callbacks to search
+ * @param uid   Unique ID to match
+ * @retval ptr Matching get_number() Callback
+ */
+const get_number_t find_get_number(const struct ExpandoRenderCallback *rcall, int uid)
+{
+  if (!rcall)
+    return NULL;
+
+  for (; rcall->uid != -1; rcall++)
+  {
+    if ((rcall->uid == uid) && rcall->get_number)
+      return rcall->get_number;
   }
 
   return NULL;
@@ -61,23 +77,19 @@ const struct ExpandoRenderCallback *find_get_number(const struct ExpandoRenderCa
 
 /**
  * find_get_string - Find a get_string() callback function
- * @param erc   Render callbacks to search
- * @param did   Domain ID to match
+ * @param rcall Render Callbacks to search
  * @param uid   Unique ID to match
- * @retval ptr Matching Render data
+ * @retval ptr Matching get_string() Callback
  */
-const struct ExpandoRenderCallback *find_get_string(const struct ExpandoRenderCallback *erc,
-                                                    int did, int uid)
+const get_string_t find_get_string(const struct ExpandoRenderCallback *rcall, int uid)
 {
-  if (!erc)
+  if (!rcall)
     return NULL;
 
-  for (; erc->did != -1; erc++)
+  for (; rcall->uid != -1; rcall++)
   {
-    if ((erc->did == did) && (erc->uid == uid) && erc->get_string)
-    {
-      return erc;
-    }
+    if ((rcall->uid == uid) && rcall->get_string)
+      return rcall->get_string;
   }
 
   return NULL;

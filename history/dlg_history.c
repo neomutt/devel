@@ -112,8 +112,7 @@ static int history_make_entry(struct Menu *menu, int line, int max_cols, struct 
   };
 
   const struct Expando *c_history_format = cs_subset_expando(NeoMutt->sub, "history_format");
-  return expando_filter(c_history_format, HistoryRenderCallbacks, &h,
-                        MUTT_FORMAT_ARROWCURSOR, max_cols, EnvList, buf);
+  return expando_filter(c_history_format, HistoryRenderData, max_cols, EnvList, buf);
 }
 
 /**

@@ -732,8 +732,7 @@ static void email_index_hook(const struct ExpandoNode *node, void *data,
     // clang-format on
   };
 
-  expando_filter(exp, IndexRenderCallbacks, data, MUTT_FORMAT_NO_FLAGS,
-                 buf->dsize, EnvList, buf);
+  expando_filter(exp, IndexRenderData, buf->dsize, EnvList, buf);
 }
 
 /**

@@ -108,24 +108,22 @@ struct Expando *expando_parse(const char *str, const struct ExpandoDefinition *d
 /**
  * expando_render - Render an Expando + data into a string
  * @param[in]  exp      Expando containing the expando tree
- * @param[in]  erc      Expando render callback functions
- * @param[in]  data     Callback data
- * @param[in]  flags    Callback flags
+ * @param[in]  rdata    Render data
  * @param[in]  max_cols Number of screen columns (-1 means unlimited)
  * @param[out] buf      Buffer in which to save string
- * @retval num Number of bytes written to buf and screen columns used
+ * @retval num Number of screen columns used
  */
-int expando_render(const struct Expando *exp, const struct ExpandoRenderCallback *erc,
-                   void *data, MuttFormatFlags flags, int max_cols, struct Buffer *buf)
+int expando_render(const struct Expando *exp, const struct ExpandoRenderData *rdata,
+                   int max_cols, struct Buffer *buf)
 {
-  if (!exp || !exp->node || !erc)
+  if (!exp || !exp->node || !rdata)
     return 0;
 
   // Give enough space for a long command line
   if (max_cols == -1)
     max_cols = 8192;
 
-  return node_render(exp->node, erc, buf, max_cols, data, flags);
+  return node_render(exp->node, rdata, max_cols, buf);
 }
 
 /**

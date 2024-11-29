@@ -34,14 +34,15 @@
 #include "node_text.h"
 #include "format.h"
 #include "node.h"
-#include "render.h"
+
+struct ExpandoRenderData;
 
 /**
  * node_text_render - Render a Text Node - Implements ExpandoNode::render() - @ingroup expando_render
  */
 static int node_text_render(const struct ExpandoNode *node,
-                            const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                            int max_cols, void *data, MuttFormatFlags flags)
+                            const struct ExpandoRenderData *rdata, int max_cols,
+                            struct Buffer *buf)
 {
   ASSERT(node->type == ENT_TEXT);
 

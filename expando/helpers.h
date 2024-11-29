@@ -24,11 +24,13 @@
 #ifndef MUTT_EXPANDO_HELPERS_H
 #define MUTT_EXPANDO_HELPERS_H
 
-struct Buffer;
-struct ExpandoRenderCallback;
+#include "render.h"
 
-const struct ExpandoRenderCallback *find_get_number(const struct ExpandoRenderCallback *erc, int did, int uid);
-const struct ExpandoRenderCallback *find_get_string(const struct ExpandoRenderCallback *erc, int did, int uid);
+struct Buffer;
+
+const struct ExpandoRenderData *find_render_data(const struct ExpandoRenderData     *rdata, int did);
+const get_number_t              find_get_number (const struct ExpandoRenderCallback *rcall, int uid);
+const get_string_t              find_get_string (const struct ExpandoRenderCallback *rcall, int uid);
 
 void buf_lower_special(struct Buffer *buf);
 

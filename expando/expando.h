@@ -25,10 +25,10 @@
 #define MUTT_EXPANDO_EXPANDO_H
 
 #include <stdbool.h>
-#include "render.h"
 
 struct Buffer;
 struct ExpandoDefinition;
+struct ExpandoRenderData;
 
 /**
  * struct Expando - Parsed Expando trees
@@ -50,6 +50,6 @@ bool expando_equal(const struct Expando *a, const struct Expando *b);
 
 struct Expando *expando_parse(const char *str, const struct ExpandoDefinition *defs, struct Buffer *err);
 
-int expando_render(const struct Expando *exp, const struct ExpandoRenderCallback *erc, void *data, MuttFormatFlags flags, int max_cols, struct Buffer *buf);
+int expando_render(const struct Expando *exp, const struct ExpandoRenderData *rdata, int max_cols, struct Buffer *buf);
 
 #endif /* MUTT_EXPANDO_EXPANDO_H */

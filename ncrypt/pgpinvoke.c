@@ -68,7 +68,7 @@ static void mutt_pgp_command(struct Buffer *buf, struct PgpCommandContext *cctx,
     // clang-format on
   };
 
-  expando_render(exp, PgpCommandRenderCallbacks, cctx, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, PgpCommandRenderData, buf->dsize, buf);
   mutt_debug(LL_DEBUG2, "%s\n", buf_string(buf));
 }
 

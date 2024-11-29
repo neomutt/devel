@@ -309,8 +309,7 @@ static bool execute_command(struct Mailbox *m, const struct Expando *exp, const 
     // clang-format on
   };
 
-  expando_render(exp, CompressRenderCallbacks, m, MUTT_FORMAT_NO_FLAGS,
-                 sys_cmd->dsize, sys_cmd);
+  expando_render(exp, CompressRenderData, sys_cmd->dsize, sys_cmd);
 
   if (mutt_system(buf_string(sys_cmd)) != 0)
   {

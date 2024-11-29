@@ -37,7 +37,8 @@
 #include "gui/lib.h"
 #include "expando.h"
 #include "node.h"
-#include "render.h"
+
+struct ExpandoRenderData;
 
 /**
  * check_for_pipe - Should the Expando be piped to an external command?
@@ -128,17 +129,14 @@ void filter_text(struct Buffer *buf, char **env_list)
 /**
  * expando_filter - Render an Expando and run the result through a filter
  * @param[in]  exp      Expando containing the expando tree
- * @param[in]  erc      Expando Render Callback functions
- * @param[in]  data     Callback data
- * @param[in]  flags    Callback flags
+ * @param[in]  rdata    Render data
  * @param[in]  max_cols Number of screen columns (-1 means unlimited)
  * @param[in]  env_list Environment to pass to filter
  * @param[out] buf      Buffer in which to save string
  * @retval obj Number of bytes written to buf and screen columns used
  */
-int expando_filter(const struct Expando *exp, const struct ExpandoRenderCallback *erc,
-                   void *data, MuttFormatFlags flags, int max_cols,
-                   char **env_list, struct Buffer *buf)
+int expando_filter(const struct Expando *exp, const struct ExpandoRenderData *rdata,
+                   int max_cols, char **env_list, struct Buffer *buf)
 {
   if (!exp || !exp->node)
     return 0;
@@ -150,7 +148,7 @@ int expando_filter(const struct Expando *exp, const struct ExpandoRenderCallback
   if (is_pipe)
     max_cols = -1;
 
-  int rc = expando_render(exp, erc, data, flags, max_cols, buf);
+  int rc = expando_render(exp, rdata, max_cols, buf);
 
   if (!is_pipe)
     return rc;

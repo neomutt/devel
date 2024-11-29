@@ -167,15 +167,18 @@ time_t cutoff_this(char period)
  * node_conddate_render - Render a CondDate Node - Implements ExpandoNode::render() - @ingroup expando_render
  */
 int node_conddate_render(const struct ExpandoNode *node,
-                         const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                         int max_cols, void *data, MuttFormatFlags flags)
+                         const struct ExpandoRenderData *rdata, int max_cols,
+                         struct Buffer *buf)
 {
   ASSERT(node->type == ENT_CONDDATE);
 
-  const struct ExpandoRenderCallback *erc_match = find_get_number(erc, node->did, node->uid);
-  ASSERT(erc_match && "Unknown UID");
+  const struct ExpandoRenderData *rd_match = find_render_data(rdata, node->did);
 
-  const long t_test = erc_match->get_number(node, data, flags);
+  ASSERT(rd_match && "Unknown UID");
+
+  const get_number_t get_number = find_get_number(rdata->rcall, node->uid);
+
+  const long t_test = get_number(node, rd_match->obj, rd_match->flags);
 
   const struct NodeCondDatePrivate *priv = node->ndata;
 

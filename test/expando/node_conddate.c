@@ -34,8 +34,8 @@ struct NodeCondDatePrivate *node_conddate_private_new(int count, char period);
 void node_conddate_private_free(void **ptr);
 struct ExpandoNode *node_conddate_new(int count, char period, int did, int uid);
 int node_conddate_render(const struct ExpandoNode *node,
-                         const struct ExpandoRenderCallback *rdata, struct Buffer *buf,
-                         int max_cols, void *data, MuttFormatFlags flags);
+                         const struct ExpandoRenderData *rdata, int max_cols,
+                         struct Buffer *buf);
 
 struct TestDates
 {
@@ -112,9 +112,9 @@ void test_expando_node_conddate(void)
     TEST_CHECK(node == NULL);
   }
 
-  // int node_conddate_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *rdata, struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
+  // int node_conddate_render(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata, int max_cols, struct Buffer *buf);
   {
-    static const struct ExpandoRenderCallback TestRenderCallback[] = {
+    static const struct ExpandoRenderCallback TestCallbacks[] = {
       // clang-format off
       { 1, 2, NULL, test_d_num },
       { -1, -1, NULL, NULL },
@@ -151,13 +151,20 @@ void test_expando_node_conddate(void)
 
       int test_date = now - ((test_dates[i].time * 9) / 10); // 10% newer
 
-      int rc = node_conddate_render(node, TestRenderCallback, buf, 99, &test_date, MUTT_FORMAT_NO_FLAGS);
+      struct ExpandoRenderData TestRenderData[] = {
+        // clang-format off
+        { 1, TestCallbacks, &test_date, MUTT_FORMAT_NO_FLAGS },
+        { -1, NULL, NULL, 0 },
+        // clang-format on
+      };
+
+      int rc = node_conddate_render(node, TestRenderData, 99, buf);
       TEST_CHECK_NUM_EQ(rc, 1);
       TEST_CHECK(buf_is_empty(buf));
 
       test_date = now - ((test_dates[i].time * 11) / 10); // 10% older
 
-      rc = node_conddate_render(node, TestRenderCallback, buf, 99, &test_date, MUTT_FORMAT_NO_FLAGS);
+      rc = node_conddate_render(node, TestRenderData, 99, buf);
       TEST_CHECK_NUM_EQ(rc, 0);
       TEST_CHECK(buf_is_empty(buf));
 
@@ -167,9 +174,9 @@ void test_expando_node_conddate(void)
     buf_pool_release(&buf);
   }
 
-  // int node_conddate_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *rdata, struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
+  // int node_conddate_render(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata, int max_cols, struct Buffer *buf);
   {
-    static const struct ExpandoRenderCallback TestRenderCallback[] = {
+    static const struct ExpandoRenderCallback TestCallbacks[] = {
       // clang-format off
       { 1, 2, NULL, test_d_num },
       { -1, -1, NULL, NULL },
@@ -191,16 +198,25 @@ void test_expando_node_conddate(void)
     struct Buffer *buf = buf_pool_get();
     const char *parsed_until = NULL;
     struct ExpandoParseError err = { 0 };
+    int test_date = 0;
+
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &test_date, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
 
     for (size_t i = 0; i < mutt_array_size(test_dates); i++)
     {
       TEST_CASE(test_dates[i].str);
-      struct ExpandoNode *node = node_conddate_parse(test_dates[i].str + 2, 1, 2, &parsed_until, &err);
+      struct ExpandoNode *node = node_conddate_parse(test_dates[i].str + 2, 1,
+                                                     2, &parsed_until, &err);
       TEST_CHECK(node != NULL);
 
-      int test_date = now - ((test_dates[i].time * 11) / 10); // 10% older
+      test_date = now - ((test_dates[i].time * 11) / 10); // 10% older
 
-      int rc = node_conddate_render(node, TestRenderCallback, buf, 99, &test_date, MUTT_FORMAT_NO_FLAGS);
+      int rc = node_conddate_render(node, TestRenderData, 99, buf);
       TEST_CHECK_NUM_EQ(rc, 0);
       TEST_CHECK(buf_is_empty(buf));
 

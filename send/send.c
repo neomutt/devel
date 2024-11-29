@@ -67,7 +67,6 @@
 #include "index/lib.h"
 #include "ncrypt/lib.h"
 #include "pager/lib.h"
-#include "parse/lib.h"
 #include "pattern/lib.h"
 #include "postpone/lib.h"
 #include "question/lib.h"
@@ -697,8 +696,7 @@ static void mutt_make_greeting(struct Email *e, FILE *fp_out, struct ConfigSubse
     // clang-format on
   };
 
-  expando_filter(c_greeting, GreetingRenderCallbacks, e, TOKEN_NO_FLAGS,
-                 buf->dsize, EnvList, buf);
+  expando_filter(c_greeting, GreetingRenderData, buf->dsize, EnvList, buf);
 
   fputs(buf_string(buf), fp_out);
   fputc('\n', fp_out);

@@ -111,7 +111,7 @@ void test_expando_if_else_true_render(void)
 
   const char *expected = "22";
 
-  const struct ExpandoRenderCallback render[] = {
+  const struct ExpandoRenderCallback TestCallbacks[] = {
     { 1, 0, simple_c },
     { 1, 1, simple_t },
     { 1, 2, simple_f },
@@ -124,8 +124,15 @@ void test_expando_if_else_true_render(void)
     .f = 3,
   };
 
+  struct ExpandoRenderData TestRenderData[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   struct Buffer *buf = buf_pool_get();
-  expando_render(exp, render, &data, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderData, buf->dsize, buf);
 
   TEST_CHECK_STR_EQ(buf_string(buf), expected);
 
