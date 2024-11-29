@@ -111,10 +111,17 @@ void test_expando_expando(void)
       // clang-format on
     };
 
-    const struct ExpandoRenderCallback TestRenderCallback[] = {
+    const struct ExpandoRenderCallback TestCallbacks[] = {
       // clang-format off
       { ED_ENVELOPE, ED_ENV_FROM, index_a, NULL },
       { -1, -1, NULL, NULL },
+      // clang-format on
+    };
+
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { ED_ENVELOPE, TestCallbacks, NULL, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
       // clang-format on
     };
 
@@ -131,13 +138,10 @@ void test_expando_expando(void)
 
       struct Buffer *buf = buf_pool_get();
 
-      rc = expando_render(NULL, TestRenderCallback, NULL, MUTT_FORMAT_NO_FLAGS, 80, buf);
+      rc = expando_render(NULL, TestRenderData, 80, buf);
       TEST_CHECK_NUM_EQ(rc, 0);
 
-      rc = expando_render(exp, NULL, NULL, MUTT_FORMAT_NO_FLAGS, 80, buf);
-      TEST_CHECK_NUM_EQ(rc, 0);
-
-      rc = expando_render(exp, TestRenderCallback, NULL, MUTT_FORMAT_NO_FLAGS, -1, buf);
+      rc = expando_render(exp, TestRenderData, -1, buf);
       TEST_CHECK_NUM_EQ(rc, 5);
 
       buf_pool_release(&buf);
@@ -158,7 +162,7 @@ void test_expando_expando(void)
 
       struct Buffer *buf = buf_pool_get();
 
-      rc = expando_render(exp, TestRenderCallback, NULL, MUTT_FORMAT_NO_FLAGS, -1, buf);
+      rc = expando_render(exp, TestRenderData, -1, buf);
       TEST_CHECK_NUM_EQ(rc, 30);
       TEST_CHECK_STR_EQ(buf_string(buf), "             bbb              ");
 
@@ -180,7 +184,7 @@ void test_expando_expando(void)
 
       struct Buffer *buf = buf_pool_get();
 
-      rc = expando_render(exp, TestRenderCallback, NULL, MUTT_FORMAT_NO_FLAGS, -1, buf);
+      rc = expando_render(exp, TestRenderData, -1, buf);
       TEST_CHECK_NUM_EQ(rc, 30);
       TEST_CHECK_STR_EQ(buf_string(buf), "             BBB              ");
 
@@ -202,7 +206,7 @@ void test_expando_expando(void)
 
       struct Buffer *buf = buf_pool_get();
 
-      rc = expando_render(exp, TestRenderCallback, NULL, MUTT_FORMAT_NO_FLAGS, -1, buf);
+      rc = expando_render(exp, TestRenderData, -1, buf);
       TEST_CHECK_NUM_EQ(rc, 10);
       TEST_CHECK_STR_EQ(buf_string(buf), "       BBB");
 
@@ -228,8 +232,7 @@ void test_expando_expando(void)
         buf_reset(buf);
         int expected = MIN(34, width);
 
-        int rc = expando_render(exp, TestRenderCallback, NULL,
-                                MUTT_FORMAT_NO_FLAGS, width, buf);
+        int rc = expando_render(exp, TestRenderData, width, buf);
         TEST_CHECK(rc == expected);
         TEST_MSG("Actual:   %d", rc);
         TEST_MSG("Expected: %d", expected);

@@ -129,8 +129,7 @@ static int crypt_make_entry(struct Menu *menu, int line, int max_cols, struct Bu
   };
 
   const struct Expando *c_pgp_entry_format = cs_subset_expando(NeoMutt->sub, "pgp_entry_format");
-  return expando_filter(c_pgp_entry_format, PgpEntryGpgmeRenderCallbacks,
-                        &entry, MUTT_FORMAT_ARROWCURSOR, max_cols, buf);
+  return expando_filter(c_pgp_entry_format, PgpEntryGpgmeRenderData, max_cols, buf);
 }
 
 /**

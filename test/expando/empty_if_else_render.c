@@ -82,7 +82,7 @@ void test_expando_empty_if_else_render(void)
   TEST_CHECK(node_true == NULL);
   check_node_expando(node_false, NULL, NULL);
 
-  const struct ExpandoRenderCallback render[] = {
+  const struct ExpandoRenderCallback TestCallbacks[] = {
     { 1, 0, simple_c },
     { 1, 1, simple_f },
     { -1, -1, NULL },
@@ -93,8 +93,15 @@ void test_expando_empty_if_else_render(void)
     .f = 3,
   };
 
+  struct ExpandoRenderData TestRenderData1[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data1, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   struct Buffer *buf = buf_pool_get();
-  expando_render(exp, render, &data1, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderData1, buf->dsize, buf);
 
   const char *expected1 = "3";
   TEST_CHECK_STR_EQ(buf_string(buf), expected1);
@@ -104,8 +111,15 @@ void test_expando_empty_if_else_render(void)
     .f = 3,
   };
 
+  struct ExpandoRenderData TestRenderData2[] = {
+    // clang-format off
+    { 1, TestCallbacks, &data2, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
   buf_reset(buf);
-  expando_render(exp, render, &data2, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+  expando_render(exp, TestRenderData2, buf->dsize, buf);
 
   const char *expected2 = "";
   TEST_CHECK_STR_EQ(buf_string(buf), expected2);

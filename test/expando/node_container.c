@@ -78,14 +78,26 @@ struct ExpandoNode *make_children(char ch)
 
 void test_expando_node_container(void)
 {
-  const struct ExpandoRenderCallback TestRenderCallback[] = {
+  const struct ExpandoRenderCallback TestCallbacks1[] = {
     // clang-format off
     { 10, 1, test_one, NULL },
     { 10, 2, test_one, NULL },
     { 10, 3, test_one, NULL },
+    { -1, -1, NULL, NULL },
+    // clang-format on
+  };
+
+  const struct ExpandoRenderCallback TestCallbacks2[] = {
+    // clang-format off
     { 20, 1, test_two, NULL },
     { 20, 2, test_two, NULL },
     { 20, 3, test_two, NULL },
+    { -1, -1, NULL, NULL },
+    // clang-format on
+  };
+
+  const struct ExpandoRenderCallback TestCallbacks3[] = {
+    // clang-format off
     { 30, 1, test_three, NULL },
     { 30, 2, test_three, NULL },
     { 30, 3, test_three, NULL },
@@ -100,7 +112,7 @@ void test_expando_node_container(void)
     node_free(&node);
   }
 
-  // int node_container_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *rdata, struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
+  // int node_container_render(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata, int max_cols, struct Buffer *buf);
   {
     static const struct Mapping tests[] = {
       // clang-format off
@@ -124,25 +136,34 @@ void test_expando_node_container(void)
     struct Buffer *buf = buf_pool_get();
     int rc;
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 10, TestCallbacks1, NULL, MUTT_FORMAT_NO_FLAGS },
+      { 20, TestCallbacks2, NULL, MUTT_FORMAT_NO_FLAGS },
+      { 30, TestCallbacks3, NULL, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     for (size_t i = 0; i < mutt_array_size(tests); i++)
     {
       TEST_CASE_("%d", tests[i].value);
       buf_reset(buf);
-      rc = node_render(cont, TestRenderCallback, buf, tests[i].value, NULL, MUTT_FORMAT_NO_FLAGS);
+      rc = node_render(cont, TestRenderData, tests[i].value, buf);
       TEST_CHECK(rc == strlen(tests[i].name));
       TEST_CHECK_STR_EQ(buf_string(buf), tests[i].name);
     }
 
     FREE(&cont->format);
     buf_reset(buf);
-    rc = node_render(cont, TestRenderCallback, buf, 50, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_render(cont, TestRenderData, 50, buf);
     TEST_CHECK_NUM_EQ(rc, 50);
     TEST_CHECK_STR_EQ(buf_string(buf), "ONEaaaONEbbbONEcccTWOaaaTWObbbTWOcccTHREEaaaTHREEb");
 
     fmt_str = "-15.20_x";
     cont->format = parse_format(fmt_str, &parsed_until, &err);
     buf_reset(buf);
-    rc = node_render(cont, TestRenderCallback, buf, 20, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_render(cont, TestRenderData, 20, buf);
     TEST_CHECK_NUM_EQ(rc, 20);
     TEST_CHECK_STR_EQ(buf_string(buf), "oneaaaonebbboneccctw");
 

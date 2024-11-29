@@ -24,13 +24,12 @@
 #ifndef MUTT_EXPANDO_NODE_CONDBOOL_H
 #define MUTT_EXPANDO_NODE_CONDBOOL_H
 
-#include "render.h"
-
 struct Buffer;
 struct ExpandoNode;
+struct ExpandoRenderData;
 
 int node_condbool_render(const struct ExpandoNode *node,
-                         const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                         int max_cols, void *data, MuttFormatFlags flags);
+                         const struct ExpandoRenderData *rdata, int max_cols,
+                         struct Buffer *buf);
 
 #endif /* MUTT_EXPANDO_NODE_CONDBOOL_H */

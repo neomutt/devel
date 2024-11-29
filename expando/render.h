@@ -87,12 +87,12 @@ struct ExpandoRenderCallback
 struct ExpandoRenderData
 {
   int                                 did;     ///< Domain ID, #ExpandoDomain
-  const struct ExpandoRenderCallback *erc;     ///< Render callback functions
+  const struct ExpandoRenderCallback *rcall;   ///< Render callback functions
   void                               *obj;     ///< Object to pass to callback function
   int                                 flags;   ///< Flags  to pass to callback function
 };
 
-int node_render(const struct ExpandoNode *node, const struct ExpandoRenderCallback *erc,
-                struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
+int node_render(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata,
+                int max_cols, struct Buffer *buf);
 
 #endif /* MUTT_EXPANDO_RENDER_H */

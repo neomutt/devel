@@ -103,12 +103,12 @@ int pad_string(const struct ExpandoNode *node, struct Buffer *buf, int max_cols)
  * node_padding_render_eol - Render End-of-Line Padding - Implements ExpandoNode::render() - @ingroup expando_render
  */
 int node_padding_render_eol(const struct ExpandoNode *node,
-                            const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                            int max_cols, void *data, MuttFormatFlags flags)
+                            const struct ExpandoRenderData *rdata, int max_cols,
+                            struct Buffer *buf)
 {
   struct ExpandoNode *left = node_get_child(node, ENP_LEFT);
 
-  int total_cols = node_render(left, erc, buf, max_cols, data, flags);
+  int total_cols = node_render(left, rdata, max_cols, buf);
 
   total_cols += pad_string(node, buf, max_cols - total_cols);
 
@@ -122,8 +122,8 @@ int node_padding_render_eol(const struct ExpandoNode *node,
  * Text to the right of the padding will be truncated.
  */
 int node_padding_render_hard(const struct ExpandoNode *node,
-                             const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                             int max_cols, void *data, MuttFormatFlags flags)
+                             const struct ExpandoRenderData *rdata,
+                             int max_cols, struct Buffer *buf)
 {
   struct Buffer *buf_left = buf_pool_get();
   struct Buffer *buf_pad = buf_pool_get();
@@ -133,11 +133,11 @@ int node_padding_render_hard(const struct ExpandoNode *node,
 
   struct ExpandoNode *left = node_get_child(node, ENP_LEFT);
   if (left)
-    cols_used += node_render(left, erc, buf_left, max_cols - cols_used, data, flags);
+    cols_used += node_render(left, rdata, max_cols - cols_used, buf_left);
 
   struct ExpandoNode *right = node_get_child(node, ENP_RIGHT);
   if (right)
-    cols_used += node_render(right, erc, buf_right, max_cols - cols_used, data, flags);
+    cols_used += node_render(right, rdata, max_cols - cols_used, buf_right);
 
   if (max_cols > cols_used)
     cols_used += pad_string(node, buf_pad, max_cols - cols_used);
@@ -160,8 +160,8 @@ int node_padding_render_hard(const struct ExpandoNode *node,
  * Text to the left of the padding will be truncated.
  */
 int node_padding_render_soft(const struct ExpandoNode *node,
-                             const struct ExpandoRenderCallback *erc, struct Buffer *buf,
-                             int max_cols, void *data, MuttFormatFlags flags)
+                             const struct ExpandoRenderData *rdata,
+                             int max_cols, struct Buffer *buf)
 {
   struct Buffer *buf_left = buf_pool_get();
   struct Buffer *buf_pad = buf_pool_get();
@@ -171,11 +171,11 @@ int node_padding_render_soft(const struct ExpandoNode *node,
 
   struct ExpandoNode *right = node_get_child(node, ENP_RIGHT);
   if (right)
-    cols_used += node_render(right, erc, buf_right, max_cols - cols_used, data, flags);
+    cols_used += node_render(right, rdata, max_cols - cols_used, buf_right);
 
   struct ExpandoNode *left = node_get_child(node, ENP_LEFT);
   if (left)
-    cols_used += node_render(left, erc, buf_left, max_cols - cols_used, data, flags);
+    cols_used += node_render(left, rdata, max_cols - cols_used, buf_left);
 
   if (max_cols > cols_used)
     cols_used += pad_string(node, buf_pad, max_cols - cols_used);

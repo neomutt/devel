@@ -202,8 +202,7 @@ static void smime_command(struct Buffer *buf, struct SmimeCommandContext *cctx,
     // clang-format on
   };
 
-  expando_render(exp, SmimeCommandRenderCallbacks, cctx, MUTT_FORMAT_NO_FLAGS,
-                 buf->dsize, buf);
+  expando_render(exp, SmimeCommandRenderData, buf->dsize, buf);
   mutt_debug(LL_DEBUG2, "%s\n", buf_string(buf));
 }
 

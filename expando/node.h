@@ -27,7 +27,8 @@
 #include <stdbool.h>
 #include "mutt/lib.h"
 #include "format.h"
-#include "render.h"
+
+struct ExpandoRenderData;
 
 /**
  * enum ExpandoNodeType - Type of Expando Node
@@ -82,14 +83,13 @@ struct ExpandoNode
    *
    * render - Render an Expando
    * @param[in]  node     Node to render
-   * @param[in]  erc      Expando Render Callback functions
-   * @param[out] buf      Buffer in which to save string
+   * @param[in]  rdata    Render data
    * @param[in]  max_cols Maximum number of screen columns to use
-   * @param[in]  data     Private data
-   * @param[in]  flags    Flags, see #MuttFormatFlags
+   * @param[out] buf      Buffer in which to save string
    * @retval num Number of screen columns used
    */
-  int (*render)(const struct ExpandoNode *node, const struct ExpandoRenderCallback *erc, struct Buffer *buf, int max_cols, void *data, MuttFormatFlags flags);
+  int (*render)(const struct ExpandoNode *node, const struct ExpandoRenderData *rdata,
+                int max_cols, struct Buffer *buf);
 };
 
 struct ExpandoNode *node_new(void);

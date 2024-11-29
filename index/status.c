@@ -60,5 +60,5 @@ void menu_status_line(struct Buffer *buf, struct IndexSharedData *shared,
     // clang-format on
   };
 
-  expando_filter(exp, StatusRenderCallbacks, &data, MUTT_FORMAT_NO_FLAGS, max_cols, buf);
+  expando_filter(exp, StatusRenderData, max_cols, buf);
 }

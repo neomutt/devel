@@ -85,7 +85,7 @@ void test_expando_node_expando(void)
     // clang-format on
   };
 
-  static const struct ExpandoRenderCallback TestRenderCallback[] = {
+  static const struct ExpandoRenderCallback TestCallbacks[] = {
     // clang-format off
     { 1, 2, test_y, test_y_num },
     { 1, 3, test_n, test_n_num },
@@ -194,12 +194,19 @@ void test_expando_node_expando(void)
     struct ExpandoNode *node = NULL;
     int rc = 0;
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, NULL, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     str = "%a";
     parsed_until = NULL;
     buf_reset(buf);
     node = node_expando_parse(str, TestFormatDef, EP_NO_FLAGS, &parsed_until, &err);
     TEST_CHECK(node != NULL);
-    rc = node_expando_render(node, TestRenderCallback, buf, 99, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_expando_render(node, TestRenderData, 99, buf);
     TEST_CHECK_NUM_EQ(rc, 5);
     TEST_CHECK_STR_EQ(buf_string(buf), "HELLO");
     node_free(&node);
@@ -209,7 +216,7 @@ void test_expando_node_expando(void)
     buf_reset(buf);
     node = node_expando_parse(str, TestFormatDef, EP_NO_FLAGS, &parsed_until, &err);
     TEST_CHECK(node != NULL);
-    rc = node_expando_render(node, TestRenderCallback, buf, 99, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_expando_render(node, TestRenderData, 99, buf);
     TEST_CHECK_NUM_EQ(rc, 20);
     TEST_CHECK_STR_EQ(buf_string(buf), "               hello");
     node_free(&node);
@@ -220,7 +227,7 @@ void test_expando_node_expando(void)
     node = node_expando_parse(str, TestFormatDef, EP_NO_FLAGS, &parsed_until, &err);
     TEST_CHECK(node != NULL);
     node_expando_set_color(node, 42);
-    rc = node_expando_render(node, TestRenderCallback, buf, 99, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_expando_render(node, TestRenderData, 99, buf);
     TEST_CHECK_NUM_EQ(rc, 1);
     TEST_MSG("rc = %d", rc);
     node_free(&node);
@@ -231,7 +238,7 @@ void test_expando_node_expando(void)
     node = node_expando_parse(str, TestFormatDef, EP_NO_FLAGS, &parsed_until, &err);
     TEST_CHECK(node != NULL);
     node_expando_set_color(node, 42);
-    rc = node_expando_render(node, TestRenderCallback, buf, 99, NULL, MUTT_FORMAT_NO_FLAGS);
+    rc = node_expando_render(node, TestRenderData, 99, buf);
     TEST_CHECK_NUM_EQ(rc, 1);
     TEST_MSG("rc = %d", rc);
     node_free(&node);

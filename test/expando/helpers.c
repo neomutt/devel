@@ -42,39 +42,60 @@ static long index_a_num(const struct ExpandoNode *node, void *data, MuttFormatFl
 
 void test_expando_helpers(void)
 {
-  static const struct ExpandoRenderCallback TestRenderCallback[] = {
+  static const struct ExpandoRenderCallback TestCallbacks[] = {
     // clang-format off
     { 1, 2, index_a, index_a_num },
     { -1, -1, NULL, NULL },
     // clang-format on
   };
 
-  // const struct ExpandoRenderCallback *find_get_number(const struct ExpandoRenderCallback *rdata, int did, int uid);
+  static const struct ExpandoRenderData TestRenderData[] = {
+    // clang-format off
+    { 1, TestCallbacks, NULL, MUTT_FORMAT_NO_FLAGS },
+    { -1, NULL, NULL, 0 },
+    // clang-format on
+  };
+
+  // const struct ExpandoRenderData *find_render_data(const struct ExpandoRenderData *rdata, int did);
   {
-    const struct ExpandoRenderCallback *rdata = NULL;
+    const struct ExpandoRenderData *rdata = NULL;
 
-    rdata = find_get_number(NULL, 1, 2);
+    rdata = find_render_data(NULL, 1);
     TEST_CHECK(rdata == NULL);
 
-    rdata = find_get_number(TestRenderCallback, 1, 2);
+    rdata = find_render_data(TestRenderData, 2);
+    TEST_CHECK(rdata == NULL);
+
+    rdata = find_render_data(TestRenderData, 1);
     TEST_CHECK(rdata != NULL);
-
-    rdata = find_get_number(TestRenderCallback, 10, 20);
-    TEST_CHECK(rdata == NULL);
   }
 
-  // const struct ExpandoRenderCallback *find_get_string(const struct ExpandoRenderCallback *rdata, int did, int uid);
+  // const get_number_t find_get_number(const struct ExpandoRenderCallback *rcall, int uid);
   {
-    const struct ExpandoRenderCallback *rdata = NULL;
+    get_number_t fn = NULL;
 
-    rdata = find_get_string(NULL, 1, 2);
-    TEST_CHECK(rdata == NULL);
+    fn = find_get_number(NULL, 2);
+    TEST_CHECK(fn == NULL);
 
-    rdata = find_get_string(TestRenderCallback, 1, 2);
-    TEST_CHECK(rdata != NULL);
+    fn = find_get_number(TestCallbacks, 2);
+    TEST_CHECK(fn != NULL);
 
-    rdata = find_get_string(TestRenderCallback, 10, 20);
-    TEST_CHECK(rdata == NULL);
+    fn = find_get_number(TestCallbacks, 20);
+    TEST_CHECK(fn == NULL);
+  }
+
+  // const get_string_t find_get_string(const struct ExpandoRenderCallback *rcall, int uid);
+  {
+    get_string_t fn = NULL;
+
+    fn = find_get_string(NULL, 2);
+    TEST_CHECK(fn == NULL);
+
+    fn = find_get_string(TestCallbacks, 2);
+    TEST_CHECK(fn != NULL);
+
+    fn = find_get_string(TestCallbacks, 20);
+    TEST_CHECK(fn == NULL);
   }
 
   // const char *skip_until_ch(const char *start, char terminator);

@@ -77,7 +77,7 @@ void test_expando_conditional_date_render2(void)
   check_node_expando(node_true, "%d-%m-%Y", NULL);
   check_node_expando(node_false, "%Y-%m-%d", NULL);
 
-  const struct ExpandoRenderCallback render[] = {
+  const struct ExpandoRenderCallback TestCallbacks[] = {
     { 1, 2, cond_date, cond_date_num },
     { -1, -1, NULL },
   };
@@ -91,8 +91,15 @@ void test_expando_conditional_date_render2(void)
     char expected[32] = { 0 };
     strftime(expected, sizeof(expected), "%d-%m-%Y", &tm);
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+    expando_render(exp, TestRenderData, buf->dsize, buf);
 
     TEST_CHECK_STR_EQ(buf_string(buf), expected);
     buf_pool_release(&buf);
@@ -107,8 +114,15 @@ void test_expando_conditional_date_render2(void)
     char expected[32] = { 0 };
     strftime(expected, sizeof(expected), "%Y-%m-%d", &tm);
 
+    struct ExpandoRenderData TestRenderData[] = {
+      // clang-format off
+      { 1, TestCallbacks, &data, MUTT_FORMAT_NO_FLAGS },
+      { -1, NULL, NULL, 0 },
+      // clang-format on
+    };
+
     struct Buffer *buf = buf_pool_get();
-    expando_render(exp, render, &data, MUTT_FORMAT_NO_FLAGS, buf->dsize, buf);
+    expando_render(exp, TestRenderData, buf->dsize, buf);
 
     TEST_CHECK_STR_EQ(buf_string(buf), expected);
     buf_pool_release(&buf);

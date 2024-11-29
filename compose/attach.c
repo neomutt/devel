@@ -240,8 +240,7 @@ static int compose_make_entry(struct Menu *menu, int line, int max_cols, struct 
   };
 
   const struct Expando *c_attach_format = cs_subset_expando(sub, "attach_format");
-  return expando_filter(c_attach_format, AttachRenderCallbacks, aptr,
-                        MUTT_FORMAT_STAT_FILE | MUTT_FORMAT_ARROWCURSOR, max_cols, buf);
+  return expando_filter(c_attach_format, AttachRenderData, max_cols, buf);
 }
 
 /**
