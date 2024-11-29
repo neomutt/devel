@@ -198,21 +198,3 @@ const struct ExpandoRenderCallback AliasRenderCallbacks[] = {
   { -1, -1, NULL, NULL },
   // clang-format on
 };
-
-/**
- * QueryRenderCallbacks - Callbacks for Query Expandos
- *
- * @sa QueryFormatDef, ExpandoDataAlias
- */
-const struct ExpandoRenderCallback QueryRenderCallbacks[] = {
-  // clang-format off
-  { ED_ALIAS, ED_ALI_ADDRESS, alias_address,     NULL },
-  { ED_ALIAS, ED_ALI_COMMENT, alias_comment,     NULL },
-  { ED_ALIAS, ED_ALI_EMAIL,   alias_email,       NULL },
-  { ED_ALIAS, ED_ALI_NAME,    alias_name,        NULL },
-  { ED_ALIAS, ED_ALI_NUMBER,  NULL,              alias_view_index_num },
-  { ED_ALIAS, ED_ALI_TAGGED,  alias_view_tagged, alias_view_tagged_num },
-  { ED_ALIAS, ED_ALI_TAGS,    alias_tags,        NULL },
-  { -1, -1, NULL, NULL },
-  // clang-format on
-};
