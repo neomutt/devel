@@ -472,11 +472,11 @@ static void global_padding_space(const struct ExpandoNode *node, void *data,
 }
 
 /**
- * FolderRenderCallbacks - Callbacks for Browser Expandos
+ * FolderRenderCallbacks1 - Callbacks for Browser Expandos
  *
  * @sa FolderFormatDef, ExpandoDataFolder, ExpandoDataGlobal
  */
-const struct ExpandoRenderCallback FolderRenderCallbacks[] = {
+const struct ExpandoRenderCallback FolderRenderCallbacks1[] = {
   // clang-format off
   { ED_FOLDER, ED_FOL_DATE,          folder_date,          folder_date_num },
   { ED_FOLDER, ED_FOL_DATE_FORMAT,   folder_date_format,   folder_date_format_num },
@@ -495,6 +495,17 @@ const struct ExpandoRenderCallback FolderRenderCallbacks[] = {
   { ED_FOLDER, ED_FOL_POLL,          NULL,                 folder_poll_num },
   { ED_FOLDER, ED_FOL_TAGGED,        folder_tagged,        folder_tagged_num },
   { ED_FOLDER, ED_FOL_UNREAD_COUNT,  folder_unread_count,  folder_unread_count_num },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * FolderRenderCallbacks2 - Callbacks for Browser Expandos
+ *
+ * @sa FolderFormatDef, ExpandoDataFolder, ExpandoDataGlobal
+ */
+const struct ExpandoRenderCallback FolderRenderCallbacks2[] = {
+  // clang-format off
   { ED_GLOBAL, ED_GLO_PADDING_SPACE, global_padding_space, NULL },
   { -1, -1, NULL, NULL },
   // clang-format on

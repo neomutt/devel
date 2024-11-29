@@ -368,17 +368,26 @@ static long body_unlink_num(const struct ExpandoNode *node, void *data, MuttForm
 }
 
 /**
- * AttachRenderCallbacks - Callbacks for Attachment Expandos
+ * AttachRenderCallbacks1 - Callbacks for Attachment Expandos
  *
  * @sa AttachFormatDef, ExpandoDataAttach, ExpandoDataBody, ExpandoDataGlobal
  */
-const struct ExpandoRenderCallback AttachRenderCallbacks[] = {
+const struct ExpandoRenderCallback AttachRenderCallbacks1[] = {
   // clang-format off
-
   { ED_ATTACH, ED_ATT_CHARSET,          attach_charset,        NULL },
   { ED_ATTACH, ED_ATT_NUMBER,           NULL,                  attach_number_num },
   { ED_ATTACH, ED_ATT_TREE,             attach_tree,           NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
 
+/**
+ * AttachRenderCallbacks2 - Callbacks for Attachment Expandos
+ *
+ * @sa AttachFormatDef, ExpandoDataAttach, ExpandoDataBody, ExpandoDataGlobal
+ */
+const struct ExpandoRenderCallback AttachRenderCallbacks2[] = {
+  // clang-format off
   { ED_BODY,   ED_BOD_CHARSET_CONVERT,  body_charset_convert,  NULL },
   { ED_BODY,   ED_BOD_DELETED,          body_deleted,          body_deleted_num },
   { ED_BODY,   ED_BOD_DESCRIPTION,      body_description,      NULL },
@@ -393,7 +402,6 @@ const struct ExpandoRenderCallback AttachRenderCallbacks[] = {
   { ED_BODY,   ED_BOD_TAGGED,           body_tagged,           body_tagged_num },
   { ED_BODY,   ED_BOD_UNLINK,           body_unlink,           body_unlink_num },
   { ED_BODY,   ED_BOD_ATTACH_COUNT,     NULL,                  body_attach_count_num },
-
   { -1, -1, NULL, NULL },
   // clang-format on
 };

@@ -476,17 +476,28 @@ static long menu_percentage_num(const struct ExpandoNode *node, void *data, Mutt
 }
 
 /**
- * StatusRenderCallbacks - Callbacks for Status Expandos
+ * StatusRenderCallbacks1 - Callbacks for Status Expandos
  *
  * @sa StatusFormatDef, ExpandoDataGlobal, ExpandoDataIndex, ExpandoDataMenu
  */
-const struct ExpandoRenderCallback StatusRenderCallbacks[] = {
+const struct ExpandoRenderCallback StatusRenderCallbacks1[] = {
   // clang-format off
   { ED_GLOBAL, ED_GLO_CONFIG_SORT,        global_config_sort,        NULL },
   { ED_GLOBAL, ED_GLO_CONFIG_SORT_AUX,    global_config_sort_aux,    NULL },
   { ED_GLOBAL, ED_GLO_CONFIG_USE_THREADS, global_config_use_threads, NULL },
   { ED_GLOBAL, ED_GLO_HOSTNAME,           global_hostname,           NULL },
   { ED_GLOBAL, ED_GLO_VERSION,            global_version,            NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * StatusRenderCallbacks2 - Callbacks for Status Expandos
+ *
+ * @sa StatusFormatDef, ExpandoDataGlobal, ExpandoDataIndex, ExpandoDataMenu
+ */
+const struct ExpandoRenderCallback StatusRenderCallbacks2[] = {
+  // clang-format off
   { ED_INDEX,  ED_IND_DELETED_COUNT,      NULL,                      index_deleted_count_num },
   { ED_INDEX,  ED_IND_DESCRIPTION,        index_description,         NULL },
   { ED_INDEX,  ED_IND_FLAGGED_COUNT,      NULL,                      index_flagged_count_num },
@@ -504,6 +515,17 @@ const struct ExpandoRenderCallback StatusRenderCallbacks[] = {
   { ED_INDEX,  ED_IND_TAGGED_COUNT,       NULL,                      index_tagged_count_num },
   { ED_INDEX,  ED_IND_UNREAD_COUNT,       NULL,                      index_unread_count_num },
   { ED_INDEX,  ED_IND_UNREAD_MAILBOXES,   NULL,                      index_unread_mailboxes_num },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * StatusRenderCallbacks3 - Callbacks for Status Expandos
+ *
+ * @sa StatusFormatDef, ExpandoDataGlobal, ExpandoDataIndex, ExpandoDataMenu
+ */
+const struct ExpandoRenderCallback StatusRenderCallbacks3[] = {
+  // clang-format off
   { ED_MENU,   ED_MEN_PERCENTAGE,         menu_percentage,           menu_percentage_num },
   { -1, -1, NULL, NULL },
   // clang-format on

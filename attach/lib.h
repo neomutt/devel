@@ -56,7 +56,8 @@
 struct Body;
 struct Buffer;
 
-extern const struct ExpandoRenderCallback AttachRenderCallbacks[];
+extern const struct ExpandoRenderCallback AttachRenderCallbacks1[];
+extern const struct ExpandoRenderCallback AttachRenderCallbacks2[];
 
 int          attach_body_count   (struct Body *b, bool recurse);
 bool         attach_body_parent  (struct Body *start, struct Body *start_parent, struct Body *body, struct Body **body_parent);

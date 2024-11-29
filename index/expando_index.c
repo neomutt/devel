@@ -727,7 +727,9 @@ static void email_index_hook(const struct ExpandoNode *node, void *data,
 
   struct ExpandoRenderData IndexRenderData[] = {
     // clang-format off
-    { ED_EMAIL, IndexRenderCallbacks, data, MUTT_FORMAT_NO_FLAGS },
+    { ED_EMAIL,    IndexRenderCallbacks1, data, MUTT_FORMAT_NO_FLAGS },
+    { ED_ENVELOPE, IndexRenderCallbacks2, data, MUTT_FORMAT_NO_FLAGS },
+    { ED_MAILBOX,  IndexRenderCallbacks3, data, MUTT_FORMAT_NO_FLAGS },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };
@@ -1707,11 +1709,11 @@ static void mailbox_percentage(const struct ExpandoNode *node, void *data,
 }
 
 /**
- * IndexRenderCallbacks - Callbacks for Index Expandos
+ * IndexRenderCallbacks1 - Callbacks for Index Expandos
  *
  * @sa IndexFormatDef, ExpandoDataEmail, ExpandoDataEnvelope, ExpandoDataGlobal, ExpandoDataMailbox
  */
-const struct ExpandoRenderCallback IndexRenderCallbacks[] = {
+const struct ExpandoRenderCallback IndexRenderCallbacks1[] = {
   // clang-format off
   { ED_EMAIL,    ED_EMA_ATTACHMENT_COUNT,    NULL,                      email_attachment_count },
   { ED_EMAIL,    ED_EMA_BODY_CHARACTERS,     email_body_characters,     NULL },
@@ -1739,6 +1741,17 @@ const struct ExpandoRenderCallback IndexRenderCallbacks[] = {
   { ED_EMAIL,    ED_EMA_THREAD_NUMBER,       NULL,                      email_thread_number },
   { ED_EMAIL,    ED_EMA_THREAD_TAGS,         email_thread_tags,         NULL },
   { ED_EMAIL,    ED_EMA_TO_CHARS,            email_to_chars,            NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * IndexRenderCallbacks2 - Callbacks for Index Expandos
+ *
+ * @sa IndexFormatDef, ExpandoDataEmail, ExpandoDataEnvelope, ExpandoDataGlobal, ExpandoDataMailbox
+ */
+const struct ExpandoRenderCallback IndexRenderCallbacks2[] = {
+  // clang-format off
   { ED_ENVELOPE, ED_ENV_CC_ALL,              envelope_cc_all,           NULL },
   { ED_ENVELOPE, ED_ENV_FIRST_NAME,          envelope_first_name,       NULL },
   { ED_ENVELOPE, ED_ENV_FROM,                envelope_from,             NULL },
@@ -1762,6 +1775,17 @@ const struct ExpandoRenderCallback IndexRenderCallbacks[] = {
   { ED_ENVELOPE, ED_ENV_USERNAME,            envelope_username,         NULL },
   { ED_ENVELOPE, ED_ENV_X_COMMENT_TO,        envelope_x_comment_to,     NULL },
   { ED_ENVELOPE, ED_ENV_X_LABEL,             envelope_x_label,          NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * IndexRenderCallbacks3 - Callbacks for Index Expandos
+ *
+ * @sa IndexFormatDef, ExpandoDataEmail, ExpandoDataEnvelope, ExpandoDataGlobal, ExpandoDataMailbox
+ */
+const struct ExpandoRenderCallback IndexRenderCallbacks3[] = {
+  // clang-format off
   { ED_MAILBOX,  ED_MBX_MAILBOX_NAME,        mailbox_mailbox_name,      NULL },
   { ED_MAILBOX,  ED_MBX_MESSAGE_COUNT,       NULL,                      mailbox_message_count },
   { ED_MAILBOX,  ED_MBX_PERCENTAGE,          mailbox_percentage,        NULL },

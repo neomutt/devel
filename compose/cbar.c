@@ -87,7 +87,8 @@ static int cbar_recalc(struct MuttWindow *win)
 
   struct ExpandoRenderData ComposeRenderData[] = {
     // clang-format off
-    { ED_COMPOSE, ComposeRenderCallbacks, shared, MUTT_FORMAT_NO_FLAGS },
+    { ED_COMPOSE, ComposeRenderCallbacks1, shared, MUTT_FORMAT_NO_FLAGS },
+    { ED_GLOBAL,  ComposeRenderCallbacks2, shared, MUTT_FORMAT_NO_FLAGS },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

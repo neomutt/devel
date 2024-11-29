@@ -304,15 +304,26 @@ static void gpgme_key_protocol(const struct ExpandoNode *node, void *data,
 }
 
 /**
- * PgpEntryGpgmeRenderCallbacks - Callbacks for GPGME Key Expandos
+ * PgpEntryGpgmeRenderCallbacks1 - Callbacks for GPGME Key Expandos
  *
  * @sa PgpEntryFormatDef, ExpandoDataGlobal, ExpandoDataPgpKeyGpgme
  */
-const struct ExpandoRenderCallback PgpEntryGpgmeRenderCallbacks[] = {
+const struct ExpandoRenderCallback PgpEntryGpgmeRenderCallbacks1[] = {
   // clang-format off
   { ED_PGP,     ED_PGP_NUMBER,            NULL,                   gpgme_entry_number_num },
   { ED_PGP,     ED_PGP_TRUST,             gpgme_entry_trust,      NULL },
   { ED_PGP,     ED_PGP_USER_ID,           gpgme_entry_user_id,    NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * PgpEntryGpgmeRenderCallbacks2 - Callbacks for GPGME Key Expandos
+ *
+ * @sa PgpEntryFormatDef, ExpandoDataGlobal, ExpandoDataPgpKeyGpgme
+ */
+const struct ExpandoRenderCallback PgpEntryGpgmeRenderCallbacks2[] = {
+  // clang-format off
   { ED_PGP_KEY, ED_PGK_DATE,              gpgme_key_date,         gpgme_key_date_num },
   { ED_PGP_KEY, ED_PGK_DATE,              gpgme_key_date,         gpgme_key_date_num },
   { ED_PGP_KEY, ED_PGK_KEY_ALGORITHM,     gpgme_key_algorithm,    NULL },

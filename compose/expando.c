@@ -95,14 +95,25 @@ static void global_version(const struct ExpandoNode *node, void *data,
 }
 
 /**
- * ComposeRenderCallbacks - Callbacks for Compose Expandos
+ * ComposeRenderCallbacks1 - Callbacks for Compose Expandos
  *
  * @sa ComposeFormatDef, ExpandoDataCompose, ExpandoDataGlobal
  */
-const struct ExpandoRenderCallback ComposeRenderCallbacks[] = {
+const struct ExpandoRenderCallback ComposeRenderCallbacks1[] = {
   // clang-format off
   { ED_COMPOSE, ED_COM_ATTACH_COUNT, NULL,                compose_attach_count_num },
   { ED_COMPOSE, ED_COM_ATTACH_SIZE,  compose_attach_size, compose_attach_size_num },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * ComposeRenderCallbacks2 - Callbacks for Compose Expandos
+ *
+ * @sa ComposeFormatDef, ExpandoDataCompose, ExpandoDataGlobal
+ */
+const struct ExpandoRenderCallback ComposeRenderCallbacks2[] = {
+  // clang-format off
   { ED_GLOBAL,  ED_GLO_HOSTNAME,     global_hostname,     NULL },
   { ED_GLOBAL,  ED_GLO_VERSION,      global_version,      NULL },
   { -1, -1, NULL, NULL },

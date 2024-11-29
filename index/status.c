@@ -56,7 +56,9 @@ void menu_status_line(struct Buffer *buf, struct IndexSharedData *shared,
 
   struct ExpandoRenderData StatusRenderData[] = {
     // clang-format off
-    { ED_GLOBAL, StatusRenderCallbacks, &data, MUTT_FORMAT_NO_FLAGS },
+    { ED_GLOBAL, StatusRenderCallbacks1, &data, MUTT_FORMAT_NO_FLAGS },
+    { ED_INDEX,  StatusRenderCallbacks2, &data, MUTT_FORMAT_NO_FLAGS },
+    { ED_MENU,   StatusRenderCallbacks3, &data, MUTT_FORMAT_NO_FLAGS },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

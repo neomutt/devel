@@ -124,7 +124,8 @@ static int crypt_make_entry(struct Menu *menu, int line, int max_cols, struct Bu
 
   struct ExpandoRenderData PgpEntryGpgmeRenderData[] = {
     // clang-format off
-    { ED_PGP, PgpEntryGpgmeRenderCallbacks, &entry, MUTT_FORMAT_ARROWCURSOR },
+    { ED_PGP,     PgpEntryGpgmeRenderCallbacks1, &entry, MUTT_FORMAT_ARROWCURSOR },
+    { ED_PGP_KEY, PgpEntryGpgmeRenderCallbacks2, &entry, MUTT_FORMAT_ARROWCURSOR },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

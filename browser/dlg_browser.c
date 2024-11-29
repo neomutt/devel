@@ -544,7 +544,8 @@ static int folder_make_entry(struct Menu *menu, int line, int max_cols, struct B
 
   struct ExpandoRenderData FolderRenderData[] = {
     // clang-format off
-    { ED_FOLDER, FolderRenderCallbacks, &folder, MUTT_FORMAT_ARROWCURSOR },
+    { ED_FOLDER, FolderRenderCallbacks1, &folder, MUTT_FORMAT_ARROWCURSOR },
+    { ED_GLOBAL, FolderRenderCallbacks2, &folder, MUTT_FORMAT_ARROWCURSOR },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

@@ -235,7 +235,8 @@ static int compose_make_entry(struct Menu *menu, int line, int max_cols, struct 
 
   struct ExpandoRenderData AttachRenderData[] = {
     // clang-format off
-    { ED_ATTACH, AttachRenderCallbacks, aptr, MUTT_FORMAT_STAT_FILE | MUTT_FORMAT_ARROWCURSOR },
+    { ED_ATTACH, AttachRenderCallbacks1, aptr, MUTT_FORMAT_STAT_FILE | MUTT_FORMAT_ARROWCURSOR },
+    { ED_BODY,   AttachRenderCallbacks2, aptr, MUTT_FORMAT_STAT_FILE | MUTT_FORMAT_ARROWCURSOR },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

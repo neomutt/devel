@@ -123,7 +123,8 @@ static int pgp_make_entry(struct Menu *menu, int line, int max_cols, struct Buff
 
   struct ExpandoRenderData PgpEntryRenderData[] = {
     // clang-format off
-    { ED_PGP, PgpEntryRenderCallbacks, &entry, MUTT_FORMAT_ARROWCURSOR },
+    { ED_PGP,     PgpEntryRenderCallbacks1, &entry, MUTT_FORMAT_ARROWCURSOR },
+    { ED_PGP_KEY, PgpEntryRenderCallbacks2, &entry, MUTT_FORMAT_ARROWCURSOR },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };
