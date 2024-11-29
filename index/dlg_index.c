@@ -816,7 +816,9 @@ int mutt_make_string(struct Buffer *buf, size_t max_cols,
 
   struct ExpandoRenderData IndexRenderData[] = {
     // clang-format off
-    { ED_EMAIL, IndexRenderCallbacks, &efi, flags },
+    { ED_EMAIL,    IndexRenderCallbacks1, &efi, flags },
+    { ED_ENVELOPE, IndexRenderCallbacks2, &efi, flags },
+    { ED_MAILBOX,  IndexRenderCallbacks3, &efi, flags },
     { -1, NULL, NULL, 0 },
     // clang-format on
   };

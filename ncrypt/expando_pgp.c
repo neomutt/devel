@@ -324,15 +324,26 @@ static long pgp_pkey_length_num(const struct ExpandoNode *node, void *data, Mutt
 }
 
 /**
- * PgpEntryRenderCallbacks- Callbacks for PGP Key Expandos
+ * PgpEntryRenderCallbacks1 - Callbacks for PGP Key Expandos
  *
  * @sa PgpEntryFormatDef, ExpandoDataGlobal, ExpandoDataPgp, ExpandoDataPgpKey
  */
-const struct ExpandoRenderCallback PgpEntryRenderCallbacks[] = {
+const struct ExpandoRenderCallback PgpEntryRenderCallbacks1[] = {
   // clang-format off
   { ED_PGP,     ED_PGP_NUMBER,            NULL,                  pgp_entry_number_num },
   { ED_PGP,     ED_PGP_TRUST,             pgp_entry_trust,       NULL },
   { ED_PGP,     ED_PGP_USER_ID,           pgp_entry_user_id,     NULL },
+  { -1, -1, NULL, NULL },
+  // clang-format on
+};
+
+/**
+ * PgpEntryRenderCallbacks2 - Callbacks for PGP Key Expandos
+ *
+ * @sa PgpEntryFormatDef, ExpandoDataGlobal, ExpandoDataPgp, ExpandoDataPgpKey
+ */
+const struct ExpandoRenderCallback PgpEntryRenderCallbacks2[] = {
+  // clang-format off
   { ED_PGP_KEY, ED_PGK_DATE,              pgp_key_date,          pgp_key_date_num },
   { ED_PGP_KEY, ED_PGK_KEY_ALGORITHM,     pgp_key_algorithm,     NULL },
   { ED_PGP_KEY, ED_PGK_KEY_CAPABILITIES,  pgp_key_capabilities,  NULL },

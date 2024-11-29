@@ -34,6 +34,8 @@ struct MenuStatusLineData
   struct Menu *menu;              ///< Current Menu
 };
 
-extern const struct ExpandoRenderCallback StatusRenderCallbacks[];
+extern const struct ExpandoRenderCallback StatusRenderCallbacks1[];
+extern const struct ExpandoRenderCallback StatusRenderCallbacks2[];
+extern const struct ExpandoRenderCallback StatusRenderCallbacks3[];
 
 #endif /* MUTT_INDEX_EXPANDO_STATUS_H */
