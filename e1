@@ -1,0 +1,318 @@
+alias/expando.c:187:14 ED_ALIAS AliasRenderCallbacks
+Alias
+	ED_ALI_ADDRESS             alias_address
+	ED_ALI_ALIAS               alias_alias
+	ED_ALI_COMMENT             alias_comment
+	ED_ALI_EMAIL               alias_email
+	ED_ALI_NAME                alias_name
+	ED_ALI_TAGS                alias_tags
+AliasView
+	ED_ALI_FLAGS               alias_view_flags
+	ED_ALI_NUMBER              alias_view_index
+	ED_ALI_TAGGED              alias_view_tagged
+
+attach/expando.c:378:14 ED_ATTACH AttachRenderCallbacks1
+Body
+	ED_ATT_CHARSET             attach_charset
+AttachPtr
+	ED_ATT_NUMBER              attach_number
+	ED_ATT_TREE                attach_tree
+
+attach/expando.c:392:14 ED_BODY AttachRenderCallbacks2
+Body
+	ED_BOD_ATTACH_COUNT        body_attach_count
+	ED_BOD_ATTACH_QUALIFIES    body_attach_qualifies
+	ED_BOD_CHARSET_CONVERT     body_charset_convert
+	ED_BOD_DELETED             body_deleted
+	ED_BOD_DESCRIPTION         body_description
+	ED_BOD_DISPOSITION         body_disposition
+	ED_BOD_FILE                body_file
+	ED_BOD_FILE_DISPOSITION    body_file_disposition
+	ED_BOD_FILE_SIZE           body_file_size
+	ED_BOD_MIME_ENCODING       body_mime_encoding
+	ED_BOD_MIME_MAJOR          body_mime_major
+	ED_BOD_MIME_MINOR          body_mime_minor
+	ED_BOD_TAGGED              body_tagged
+	ED_BOD_UNLINK              body_unlink
+
+autocrypt/expando.c:121:14 ED_AUTOCRYPT AutocryptRenderCallbacks
+Address
+	ED_AUT_ADDRESS             autocrypt_address
+AutocryptAccount
+	ED_AUT_ENABLED             autocrypt_enabled
+	ED_AUT_KEYID               autocrypt_keyid
+	ED_AUT_PREFER_ENCRYPT      autocrypt_prefer_encrypt
+AccountEntry
+	ED_AUT_NUMBER              autocrypt_number
+
+compmbox/expando.c:70:14 ED_COMPRESS CompressRenderCallbacks
+Mailbox
+	ED_CMP_FROM                compress_from
+	ED_CMP_TO                  compress_to
+
+compose/expando.c:113:14 ED_COMPOSE ComposeRenderCallbacks1
+Menu or AttachCtx
+	ED_COM_ATTACH_COUNT        compose_attach_count
+AttachCtx
+	ED_COM_ATTACH_SIZE         compose_attach_size
+
+index/expando_index.c:1754:14 ED_ENVELOPE IndexRenderCallbacks2
+Envelope
+	ED_ENV_CC_ALL              envelope_cc_all
+	ED_ENV_FIRST_NAME          envelope_first_name
+	ED_ENV_FROM                envelope_from
+	ED_ENV_FROM_FULL           envelope_from_full
+	ED_ENV_INITIALS            envelope_initials
+	ED_ENV_LIST_ADDRESS        envelope_list_address
+	ED_ENV_LIST_EMPTY          envelope_list_empty
+	ED_ENV_MESSAGE_ID          envelope_message_id
+	ED_ENV_NAME                envelope_name
+	ED_ENV_NEWSGROUP           envelope_newsgroup
+	ED_ENV_ORGANIZATION        envelope_organization
+	ED_ENV_REPLY_TO            envelope_reply_to
+	ED_ENV_SENDER              envelope_sender
+	ED_ENV_SENDER_PLAIN        envelope_sender_plain
+	ED_ENV_SPAM                envelope_spam
+	ED_ENV_THREAD_X_LABEL      envelope_thread_x_label
+	ED_ENV_TO                  envelope_to
+	ED_ENV_TO_ALL              envelope_to_all
+	ED_ENV_USERNAME            envelope_username
+	ED_ENV_X_COMMENT_TO        envelope_x_comment_to
+	ED_ENV_X_LABEL             envelope_x_label
+Email
+	ED_ENV_SUBJECT             envelope_subject
+	ED_ENV_THREAD_TREE         envelope_thread_tree
+
+send/expando.c:110:14 ED_ENVELOPE GreetingRenderCallbacks
+Envelope
+	ED_ENV_FIRST_NAME          greeting_first_name
+	ED_ENV_REAL_NAME           greeting_real_name
+	ED_ENV_USER_NAME           greeting_login_name
+
+browser/expando.c:482:14 ED_FOLDER FolderRenderCallbacks1
+FolderFile
+	ED_FOL_DATE                folder_date
+	ED_FOL_DATE_FORMAT         folder_date_format
+	ED_FOL_DATE_STRF           folder_date_strf
+	ED_FOL_DESCRIPTION         folder_description
+	ED_FOL_FILENAME            folder_filename
+	ED_FOL_FILE_GROUP          folder_file_group
+	ED_FOL_FILE_MODE           folder_file_mode
+	ED_FOL_FILE_OWNER          folder_file_owner
+	ED_FOL_FILE_SIZE           folder_file_size
+	ED_FOL_HARD_LINKS          folder_hard_links
+	ED_FOL_MESSAGE_COUNT       folder_message_count
+	ED_FOL_NEW_MAIL            folder_new_mail
+	ED_FOL_NOTIFY              folder_notify
+	ED_FOL_POLL                folder_poll
+	ED_FOL_TAGGED              folder_tagged
+	ED_FOL_UNREAD_COUNT        folder_unread_count
+Folder
+	ED_FOL_NUMBER              folder_number
+
+nntp/expando_browser.c:188:14 ED_FOLDER GroupIndexRenderCallbacks
+FolderFile
+	ED_FOL_DESCRIPTION         group_index_description
+	ED_FOL_FLAGS               group_index_flags
+	ED_FOL_FLAGS2              group_index_flags2
+	ED_FOL_NEWSGROUP           group_index_newsgroup
+	ED_FOL_NEW_COUNT           group_index_new_count
+	ED_FOL_NOTIFY              group_index_notify
+	ED_FOL_POLL                group_index_poll
+	ED_FOL_UNREAD_COUNT        group_index_unread_count
+Folder
+	ED_FOL_NUMBER              group_index_number
+
+browser/expando.c:510:14 ED_GLOBAL FolderRenderCallbacks2
+[None]
+	ED_GLO_PADDING_SPACE       global_padding_space
+
+compose/expando.c:126:14 ED_GLOBAL ComposeRenderCallbacks2
+[None]
+	ED_GLO_HOSTNAME            global_hostname
+	ED_GLO_VERSION             global_version
+
+index/expando_status.c:487:14 ED_GLOBAL StatusRenderCallbacks1
+[None]
+	ED_GLO_CONFIG_SORT         global_config_sort
+	ED_GLO_CONFIG_SORT_AUX     global_config_sort_aux
+	ED_GLO_CONFIG_USE_THREADS  global_config_use_threads
+	ED_GLO_HOSTNAME            global_hostname
+	ED_GLO_VERSION             global_version
+
+history/expando.c:63:14 ED_HISTORY HistoryRenderCallbacks
+HistoryEntry
+	ED_HIS_MATCH               history_match
+	ED_HIS_NUMBER              history_number
+
+index/expando_index.c:1717:14 ED_EMAIL IndexRenderCallbacks1
+Body
+	ED_EMA_SIZE                email_size
+Email
+	ED_EMA_BODY_CHARACTERS     email_body_characters
+	ED_EMA_CRYPTO_FLAGS        email_crypto_flags
+	ED_EMA_DATE_FORMAT         email_date_format
+	ED_EMA_DATE_FORMAT_LOCAL   email_date_format_local
+	ED_EMA_DATE_STRF           email_date_strf
+	ED_EMA_DATE_STRF_LOCAL     email_date_strf_local
+	ED_EMA_LINES               email_lines
+	ED_EMA_MESSAGE_FLAGS       email_message_flags
+	ED_EMA_NUMBER              email_number
+	ED_EMA_SCORE               email_score
+	ED_EMA_STRF_RECV_LOCAL     email_strf_recv_local
+	ED_EMA_TAGS                email_tags
+	ED_EMA_TAGS_TRANSFORMED    email_tags_transformed
+	ED_EMA_THREAD_HIDDEN_COUNT email_thread_hidden_count
+	ED_EMA_THREAD_TAGS         email_thread_tags
+	ED_EMA_TO_CHARS            email_to_chars
+Envelope
+	ED_EMA_FROM_LIST           email_from_list
+	ED_EMA_LIST_OR_SAVE_FOLDER email_list_or_save_folder
+HdrFormatInfo + Email
+	ED_EMA_COMBINED_FLAGS      email_combined_flags
+	ED_EMA_FLAG_CHARS          email_flag_chars
+	ED_EMA_STATUS_FLAGS        email_status_flags
+Mailbox + Email
+	ED_EMA_ATTACHMENT_COUNT    email_attachment_count
+	ED_EMA_INDEX_HOOK          email_index_hook
+	ED_EMA_THREAD_COUNT        email_thread_count
+	ED_EMA_THREAD_NUMBER       email_thread_number
+
+index/expando_index.c:1788:14 ED_MAILBOX IndexRenderCallbacks3
+HdrFormatInfo
+	ED_MBX_PERCENTAGE          mailbox_percentage
+Mailbox
+	ED_MBX_MESSAGE_COUNT       mailbox_message_count
+Mailbox + Email
+	ED_MBX_MAILBOX_NAME        mailbox_mailbox_name
+
+index/expando_status.c:503:14 ED_INDEX StatusRenderCallbacks2
+Mailbox
+	ED_IND_DELETED_COUNT       index_deleted_count
+	ED_IND_DESCRIPTION         index_description
+	ED_IND_FLAGGED_COUNT       index_flagged_count
+	ED_IND_LIMIT_COUNT         index_limit_count
+	ED_IND_MAILBOX_PATH        index_mailbox_path
+	ED_IND_MAILBOX_SIZE        index_mailbox_size
+	ED_IND_MESSAGE_COUNT       index_message_count
+	ED_IND_NEW_COUNT           index_new_count
+	ED_IND_OLD_COUNT           index_old_count
+	ED_IND_POSTPONED_COUNT     index_postponed_count
+	ED_IND_READONLY            index_readonly
+	ED_IND_READ_COUNT          index_read_count
+	ED_IND_TAGGED_COUNT        index_tagged_count
+	ED_IND_UNREAD_COUNT        index_unread_count
+	ED_IND_UNREAD_MAILBOXES    index_unread_mailboxes
+MailboxView
+	ED_IND_LIMIT_PATTERN       index_limit_pattern
+	ED_IND_LIMIT_SIZE          index_limit_size
+
+index/expando_status.c:531:14 ED_MENU StatusRenderCallbacks3
+Menu
+	ED_MEN_PERCENTAGE          menu_percentage
+
+ncrypt/expando_command.c:101:14 ED_PGP_CMD PgpCommandRenderCallbacks
+PgpCommandContext
+	ED_PGC_FILE_MESSAGE        pgp_command_file_message
+	ED_PGC_FILE_SIGNATURE      pgp_command_file_signature
+	ED_PGC_KEY_IDS             pgp_command_key_ids
+	ED_PGC_NEED_PASS           pgp_command_need_pass
+	ED_PGC_SIGN_AS             pgp_command_sign_as
+
+ncrypt/expando_smime.c:162:14 ED_SMIME_CMD SmimeCommandRenderCallbacks
+SmimeCommandContext
+	ED_SMI_ALGORITHM           smime_command_algorithm
+	ED_SMI_CERTIFICATE_IDS     smime_command_certificate_ids
+	ED_SMI_DIGEST_ALGORITHM    smime_command_digest_algorithm
+	ED_SMI_INTERMEDIATE_IDS    smime_command_intermediate_ids
+	ED_SMI_KEY                 smime_command_key
+	ED_SMI_MESSAGE_FILE        smime_command_message_file
+	ED_SMI_SIGNATURE_FILE      smime_command_signature_file
+[None]
+	ED_SMI_CERTIFICATE_PATH    smime_command_certificate_path
+
+nntp/expando_newsrc.c:162:14 ED_NNTP NntpRenderCallbacks
+ConnAccount
+	ED_NTP_ACCOUNT             nntp_account
+	ED_NTP_PORT                nntp_port
+	ED_NTP_PORT_IF             nntp_port_if
+	ED_NTP_SCHEMA              nntp_schema
+	ED_NTP_SERVER              nntp_server
+	ED_NTP_USERNAME            nntp_username
+
+pattern/expando.c:75:14 ED_PATTERN PatternRenderCallbacks
+PatternEntry
+	ED_PAT_DESCRIPTION         pattern_description
+	ED_PAT_EXPRESSION          pattern_expression
+	ED_PAT_NUMBER              pattern_number
+
+ncrypt/expando_gpgme.c:311:14 ED_PGP PgpEntryGpgmeRenderCallbacks1
+CryptEntry
+	ED_PGP_NUMBER              gpgme_entry_number
+CryptKeyInfo
+	ED_PGP_TRUST               gpgme_entry_trust
+	ED_PGP_USER_ID             gpgme_entry_user_id
+
+ncrypt/expando_pgp.c:331:14 ED_PGP PgpEntryRenderCallbacks1
+PgpEntry
+	ED_PGP_NUMBER              pgp_entry_number
+PgpUid
+	ED_PGP_TRUST               pgp_entry_trust
+	ED_PGP_USER_ID             pgp_entry_user_id
+
+ncrypt/expando_gpgme.c:325:14 ED_PGP_KEY PgpEntryGpgmeRenderCallbacks2
+CryptKeyInfo
+	ED_PGK_DATE                gpgme_key_date
+	ED_PGK_KEY_ALGORITHM       gpgme_key_algorithm
+	ED_PGK_KEY_CAPABILITIES    gpgme_key_capabilities
+	ED_PGK_KEY_FINGERPRINT     gpgme_key_fingerprint
+	ED_PGK_KEY_FLAGS           gpgme_key_flags
+	ED_PGK_KEY_ID              gpgme_key_id
+	ED_PGK_KEY_LENGTH          gpgme_key_length
+	ED_PGK_PKEY_ALGORITHM      gpgme_key_algorithm
+	ED_PGK_PKEY_CAPABILITIES   gpgme_key_capabilities
+	ED_PGK_PKEY_FINGERPRINT    gpgme_key_fingerprint
+	ED_PGK_PKEY_FLAGS          gpgme_key_flags
+	ED_PGK_PKEY_ID             gpgme_key_id
+	ED_PGK_PKEY_LENGTH         gpgme_key_length
+	ED_PGK_PROTOCOL            gpgme_key_protocol
+
+ncrypt/expando_pgp.c:345:14 ED_PGP_KEY PgpEntryRenderCallbacks2
+PgpKeyInfo
+	ED_PGK_DATE                pgp_key_date
+	ED_PGK_KEY_ALGORITHM       pgp_key_algorithm
+	ED_PGK_KEY_CAPABILITIES    pgp_key_capabilities
+	ED_PGK_KEY_FLAGS           pgp_key_flags
+	ED_PGK_KEY_ID              pgp_key_id
+	ED_PGK_KEY_LENGTH          pgp_key_length
+PgpKeyInfo 2
+	ED_PGK_PKEY_ALGORITHM      pgp_pkey_algorithm
+	ED_PGK_PKEY_CAPABILITIES   pgp_pkey_capabilities
+	ED_PGK_PKEY_FLAGS          pgp_pkey_flags
+	ED_PGK_PKEY_ID             pgp_pkey_id
+	ED_PGK_PKEY_LENGTH         pgp_pkey_length
+[None]
+	ED_PGK_KEY_FINGERPRINT     pgp_entry_ignore
+	ED_PGK_PKEY_FINGERPRINT    pgp_entry_ignore
+	ED_PGK_PROTOCOL            pgp_entry_ignore
+
+sidebar/expando.c:312:14 ED_SIDEBAR SidebarRenderCallbacks
+IndexSharedData + Mailbox
+	ED_SID_DELETED_COUNT       sidebar_deleted_count
+	ED_SID_LIMITED_COUNT       sidebar_limited_count
+	ED_SID_TAGGED_COUNT        sidebar_tagged_count
+SbEntry
+	ED_SID_DESCRIPTION         sidebar_description
+	ED_SID_NAME                sidebar_name
+Mailbox
+	ED_SID_FLAGGED             sidebar_flagged
+	ED_SID_FLAGGED_COUNT       sidebar_flagged_count
+	ED_SID_MESSAGE_COUNT       sidebar_message_count
+	ED_SID_NEW_MAIL            sidebar_new_mail
+	ED_SID_NOTIFY              sidebar_notify
+	ED_SID_OLD_COUNT           sidebar_old_count
+	ED_SID_POLL                sidebar_poll
+	ED_SID_READ_COUNT          sidebar_read_count
+	ED_SID_UNREAD_COUNT        sidebar_unread_count
+	ED_SID_UNSEEN_COUNT        sidebar_unseen_count
+
