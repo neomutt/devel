@@ -61,7 +61,8 @@
  * @ref lib_menu, @ref lib_mutt, @ref lib_ncrypt, @ref lib_nntp,
  * @ref lib_notmuch, @ref lib_pager, @ref lib_parse, @ref lib_pattern,
  * @ref pfile, @ref lib_pop, @ref lib_postpone, @ref lib_progress,
- * @ref lib_question, @ref lib_send, @ref lib_sidebar, @ref lib_store.
+ * @ref lib_question, @ref lib_send, @ref lib_sidebar, @ref lib_spager,
+ * @ref lib_store.
  *
  * ## Miscellaneous files
  *
