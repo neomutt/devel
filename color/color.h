@@ -39,20 +39,28 @@ enum ColorId
   MT_COLOR_ATTACH_HEADERS,           ///< MIME attachment test (takes a pattern)
   MT_COLOR_BODY,                     ///< Pager: highlight body of message (takes a pattern)
   MT_COLOR_BOLD,                     ///< Bold text
+  MT_COLOR_COMMENT,                  ///< Commented out config
   MT_COLOR_COMPOSE_HEADER,           ///< Header labels, e.g. From:
   MT_COLOR_COMPOSE_SECURITY_BOTH,    ///< Mail will be encrypted and signed
   MT_COLOR_COMPOSE_SECURITY_ENCRYPT, ///< Mail will be encrypted
   MT_COLOR_COMPOSE_SECURITY_NONE,    ///< Mail will not be encrypted or signed
   MT_COLOR_COMPOSE_SECURITY_SIGN,    ///< Mail will be signed
+  MT_COLOR_DEBUG,                    ///< Debug log level message
+  MT_COLOR_ENUM,                     ///< Enumeration, boolean, menu name
   MT_COLOR_ERROR,                    ///< Error message
+  MT_COLOR_FUNCTION,                 ///< Function, command
   MT_COLOR_HDRDEFAULT,               ///< Header default colour
   MT_COLOR_HEADER,                   ///< Message headers (takes a pattern)
+  MT_COLOR_HEADING,                  ///< Heading
+  MT_COLOR_IDENTIFIER,               ///< Identifier, config option, colour object
   MT_COLOR_INDICATOR,                ///< Selected item in list
   MT_COLOR_ITALIC,                   ///< Italic text
   MT_COLOR_MARKERS,                  ///< Pager: markers, line continuation
   MT_COLOR_MESSAGE,                  ///< Informational message
   MT_COLOR_MESSAGE_LOG,              ///< Menu showing log messages
   MT_COLOR_NORMAL,                   ///< Plain text
+  MT_COLOR_NUMBER,                   ///< Number
+  MT_COLOR_OPERATOR,                 ///< "=", keybinding
   MT_COLOR_OPTIONS,                  ///< Options in prompt
   MT_COLOR_PROGRESS,                 ///< Progress bar
   MT_COLOR_PROMPT,                   ///< Question/user input
@@ -78,6 +86,7 @@ enum ColorId
   MT_COLOR_SIDEBAR_UNREAD,           ///< Mailbox with unread mail
   MT_COLOR_SIGNATURE,                ///< Pager: signature lines
   MT_COLOR_STATUS,                   ///< Status bar (takes a pattern)
+  MT_COLOR_STRING,                   ///< String, character
   MT_COLOR_STRIPE_EVEN,              ///< Stripes: even lines of the Help Page
   MT_COLOR_STRIPE_ODD,               ///< Stripes: odd lines of the Help Page
   MT_COLOR_TILDE,                    ///< Pager: empty lines after message
