@@ -370,6 +370,9 @@ LIBDEBUGOBJS+=	debug/logging.o
 @if USE_DEBUG_NOTIFY
 LIBDEBUGOBJS+=	debug/notify.o
 @endif
+@if USE_DEBUG_SPAGER
+LIBDEBUGOBJS+=	debug/spager.o
+@endif
 @if USE_DEBUG_WINDOW
 LIBDEBUGOBJS+=	debug/window.o
 @endif

@@ -289,6 +289,9 @@ static const struct CompileOptions DebugOpts[] = {
 #ifdef QUEUE_MACRO_DEBUG_TRACE
   { "queue", 2 },
 #endif
+#ifdef USE_DEBUG_SPAGER
+  { "spager", 2 },
+#endif
 #ifdef USE_UBSAN
   { "ubsan", 2 },
 #endif

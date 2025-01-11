@@ -36,6 +36,7 @@
  * | debug/names.c       | @subpage debug_names       |
  * | debug/notify.c      | @subpage debug_notify      |
  * | debug/pager.c       | @subpage debug_pager       |
+ * | debug/spager.c      | @subpage debug_spager      |
  * | debug/window.c      | @subpage debug_window      |
  */
 
@@ -56,6 +57,7 @@ struct AttachCtx;
 struct AttachPtr;
 struct MailboxView;
 struct MuttWindow;
+struct PagedFile;
 struct PagerPrivateData;
 
 // Common
@@ -147,6 +149,9 @@ void dump_pager(struct PagerPrivateData *priv);
 #else
 static inline void dump_pager(struct PagerPrivateData *priv) {}
 #endif
+
+// Simple Pager
+void dump_spager(struct PagedFile *pf);
 
 // Window
 struct MuttWindow *debug_win_barrier_wrap(struct MuttWindow *win_child, int width, int height);

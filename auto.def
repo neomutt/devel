@@ -119,6 +119,7 @@ set valid_options {
   debug-names=0             => "DEBUG: Enable Name lookup tables"
   debug-notify=0            => "DEBUG: Enable Notifications dump"
   debug-queue=0             => "DEBUG: Enable TAILQ debugging"
+  debug-spager=0            => "DEBUG: Enable Simple Pager dump"
   debug-window=0            => "DEBUG: Enable Windows dump"
 }
 
@@ -175,9 +176,9 @@ if {1} {
   foreach opt {
     asan autocrypt bdb compile-commands coverage debug-backtrace debug-color
     debug-email debug-graphviz debug-keymap debug-logging debug-names
-    debug-notify debug-queue debug-window doc everything fmemopen full-doc
-    fuzzing gdbm gnutls gpgme gsasl gss homespool idn2 inotify kyotocabinet
-    lmdb locales-fix lua lz4 nls notmuch paths-in-cflags pcre2 pgp
+    debug-notify debug-queue debug-spager debug-window doc everything fmemopen
+    full-doc fuzzing gdbm gnutls gpgme gsasl gss homespool idn2 inotify
+    kyotocabinet lmdb locales-fix lua lz4 nls notmuch paths-in-cflags pcre2 pgp
     qdbm rocksdb sasl smime sqlite ssl tdb
     tokyocabinet ubsan zlib zstd
   } {
@@ -1072,6 +1073,13 @@ if {[get-define want-debug-queue]} {
   define QUEUE_MACRO_DEBUG_TRACE
   # Invalidated pointers will be set to 0xffffffffffffffff
   define QUEUE_MACRO_DEBUG_TRASH
+  define debug_build 1
+}
+
+# Simple Pager dump
+if {[get-define want-debug-spager]} {
+  define USE_DEBUG_SPAGER 1
+  define USE_DEBUG_COLOR 1
   define debug_build 1
 }
 
