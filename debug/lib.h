@@ -149,6 +149,7 @@ static inline void dump_pager(struct PagerPrivateData *priv) {}
 #endif
 
 // Window
+void debug_win_blanket(struct MuttWindow *win, int cid, char ch);
 void debug_win_dump(void);
 
 #endif /* MUTT_DEBUG_LIB_H */

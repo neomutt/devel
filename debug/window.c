@@ -107,3 +107,26 @@ void debug_win_dump(void)
 #endif
   WinFocus = NULL;
 }
+
+/**
+ * debug_win_blanket - Blanket a Window with colour
+ * @param win Window to fill
+ * @param cid Colour ID, e.g. #MT_COLOR_ERROR
+ * @param ch  Character to fill with
+ */
+void debug_win_blanket(struct MuttWindow *win, int cid, char ch)
+{
+  if (!win)
+    return;
+
+  for (int row = 0; row < win->state.rows; row++)
+  {
+    mutt_window_move(win, row, 0);
+    mutt_curses_set_normal_backed_color_by_id(cid);
+
+    for (int col = 0; col < win->state.cols; col++)
+    {
+      mutt_window_addch(win, ch);
+    }
+  }
+}
