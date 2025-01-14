@@ -130,3 +130,56 @@ void debug_win_blanket(struct MuttWindow *win, int cid, char ch)
     }
   }
 }
+
+/**
+ * win_barrier_repaint - Repaint the Barrier Window - Implements MuttWindow::repaint() - @ingroup window_repaint
+ */
+static int win_barrier_repaint(struct MuttWindow *win)
+{
+  debug_win_blanket(win, MT_COLOR_ERROR, 'X');
+  mutt_debug(LL_DEBUG5, "repaint done\n");
+  return 0;
+}
+
+/**
+ * debug_win_barrier_wrap - Create a Barrier of Windows around a Window
+ * @param win_child Window to surround
+ * @param width     Width of left/right barriers
+ * @param height    Height of top/bottom barriers
+ * @retval ptr Container Window
+ */
+struct MuttWindow *debug_win_barrier_wrap(struct MuttWindow *win_child, int width, int height)
+{
+  struct MuttWindow *win_top = mutt_window_new(WT_CUSTOM, MUTT_WIN_ORIENT_VERTICAL,
+                                               MUTT_WIN_SIZE_FIXED,
+                                               MUTT_WIN_SIZE_UNLIMITED, height);
+  struct MuttWindow *win_left = mutt_window_new(WT_CUSTOM, MUTT_WIN_ORIENT_HORIZONTAL,
+                                                MUTT_WIN_SIZE_FIXED, width,
+                                                MUTT_WIN_SIZE_UNLIMITED);
+  struct MuttWindow *win_right = mutt_window_new(WT_CUSTOM, MUTT_WIN_ORIENT_HORIZONTAL,
+                                                 MUTT_WIN_SIZE_FIXED, width,
+                                                 MUTT_WIN_SIZE_UNLIMITED);
+  struct MuttWindow *win_bottom = mutt_window_new(WT_CUSTOM, MUTT_WIN_ORIENT_VERTICAL,
+                                                  MUTT_WIN_SIZE_FIXED,
+                                                  MUTT_WIN_SIZE_UNLIMITED, height);
+  win_top->repaint = win_barrier_repaint;
+  win_left->repaint = win_barrier_repaint;
+  win_right->repaint = win_barrier_repaint;
+  win_bottom->repaint = win_barrier_repaint;
+
+  struct MuttWindow *win_inner = mutt_window_new(WT_CONTAINER, MUTT_WIN_ORIENT_HORIZONTAL,
+                                                 MUTT_WIN_SIZE_MAXIMISE, MUTT_WIN_SIZE_UNLIMITED,
+                                                 MUTT_WIN_SIZE_UNLIMITED);
+  mutt_window_add_child(win_inner, win_left);
+  mutt_window_add_child(win_inner, win_child);
+  mutt_window_add_child(win_inner, win_right);
+
+  struct MuttWindow *win_outer = mutt_window_new(WT_CONTAINER, MUTT_WIN_ORIENT_VERTICAL,
+                                                 MUTT_WIN_SIZE_MAXIMISE, MUTT_WIN_SIZE_UNLIMITED,
+                                                 MUTT_WIN_SIZE_UNLIMITED);
+  mutt_window_add_child(win_outer, win_top);
+  mutt_window_add_child(win_outer, win_inner);
+  mutt_window_add_child(win_outer, win_bottom);
+
+  return win_outer;
+}
