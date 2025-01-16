@@ -1,0 +1,2 @@
+gh pr list --search "merged:>2025-01-13"
+

@@ -1,0 +1,10 @@
+git neomutt-release script
+	add all
+	signed
+	dated
+	messaged
+	tagged
+	verify signatures on commit and tag
+	diffstat commit
+	push [y/N]?
+

@@ -1,0 +1,68 @@
+Subject: NeoMutt 2025-00-00
+
+## Notes
+
+- XXX
+  - YYY
+- ZZZ
+
+## Sponsors
+
+Special thanks to our **sponsors**:
+
+- First Last (@nick)
+
+## Thanks
+
+Many thanks to our *new contributors*:
+
+- First Last (@nick)
+
+our *regular contributors*:
+
+- First Last (@nick)
+
+## Security
+
+- description
+
+## Features
+
+- description
+
+## Contrib
+
+- description
+
+## Bug Fixes
+
+- description
+
+## Changed Config
+
+- description
+
+## Translations
+
+- description
+
+## Docs
+
+- description
+
+## Website
+
+- description
+
+## Build
+
+- description
+
+## Code
+
+- description
+
+## Upstream
+
+- description
+
