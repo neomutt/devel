@@ -1,0 +1,25 @@
+%changelog
+* Fri XXX 00 2024 Richard Russon <rich@flatcap.org> - 20240000-1
+- Security
+  - description
+- Features
+  - description
+- Contrib
+  - description
+- Bug Fixes
+  - description
+- Changed Config
+  - description
+- Translations
+  - description
+- Docs
+  - description
+- Website
+  - description
+- Build
+  - description
+- Code
+  - description
+- Upstream
+  - description
+

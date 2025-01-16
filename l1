@@ -1,0 +1,11 @@
+gh pr list --search "merged:>2025-01-13"
+
+up to e474b0b94 merge: update translations
+
+73a0a275a trivial fixes
+427d0d5a9 fix mutt_debug()s missing newlines
+e0413d023 add enum StatusChars for $status_chars
+b9a11e87c factor out log_queue_save()
+484d4e74f key: tidy deps
+5de5efb6e refactor key binding dump functions
+
