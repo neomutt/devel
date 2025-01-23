@@ -19821,6 +19821,13 @@ neomutt -a image.jpg *.png -- address1 address2
               </entry>
             </row>
             <row>
+              <entry>-D -D (or -DD)</entry>
+              <entry>
+                Like <emphasis role="bold">-D</emphasis>, but only show the
+                config that has changed
+              </entry>
+            </row>
+            <row>
               <entry>-D -O</entry>
               <entry>
                 Like <emphasis role="bold">-D</emphasis>, but show one-liner documentation

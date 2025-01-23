@@ -776,7 +776,7 @@ static bool usage(void)
   puts(_("  neomutt [-nRy] [-e <command>] [-F <config>] [-f <mailbox>] [-m <type>]"));
   puts(_("  neomutt [-n] [-e <command>] [-F <config>] -A <alias>"));
   puts(_("  neomutt [-n] [-e <command>] [-F <config>] -B"));
-  puts(_("  neomutt [-n] [-e <command>] [-F <config>] -D [-S] [-O]"));
+  puts(_("  neomutt [-n] [-e <command>] [-F <config>] -D [-D] [-O] [-S]"));
   puts(_("  neomutt [-n] [-e <command>] [-F <config>] -d <level> -l <file>"));
   puts(_("  neomutt [-n] [-e <command>] [-F <config>] -G"));
   puts(_("  neomutt [-n] [-e <command>] [-F <config>] -g <server>"));
@@ -798,6 +798,7 @@ static bool usage(void)
   puts(_("  -c <address>  Specify a carbon copy (Cc) recipient"));
   puts(_("  -C            Enable Command-line Crypto (signing/encryption)"));
   puts(_("  -D            Dump all config variables as 'name=value' pairs to stdout"));
+  puts(_("  -D -D         (or -DD) Like -D, but only show changed config"));
   puts(_("  -D -O         Like -D, but show one-liner documentation"));
   puts(_("  -D -S         Like -D, but hide the value of sensitive variables"));
   puts(_("  -d <level>    Log debugging output to a file (default is \"~/.neomuttdebug0\")\n"
@@ -1053,7 +1054,7 @@ main
   int version = 0;
   int i;
   bool explicit_folder = false;
-  bool dump_variables = false;
+  int dump_variables = 0;
   bool one_liner = false;
   bool hide_sensitive = false;
   bool batch_mode = false;
@@ -1124,7 +1125,7 @@ main
           mutt_list_insert_tail(&cc_list, mutt_str_dup(optarg));
           break;
         case 'D':
-          dump_variables = true;
+          dump_variables++;
           break;
         case 'd':
           dlevel = optarg;
@@ -1296,7 +1297,7 @@ main
 
   /* Check for a batch send. */
   if (!isatty(0) || !STAILQ_EMPTY(&queries) || !STAILQ_EMPTY(&alias_queries) ||
-      dump_variables || batch_mode)
+      (dump_variables > 0) || batch_mode)
   {
     OptNoCurses = true;
     sendflags |= SEND_BATCH;
@@ -1392,7 +1393,7 @@ main
   if (new_type && !config_str_set_initial(cs, "mbox_type", new_type))
     goto main_curses;
 
-  if (dump_variables || !STAILQ_EMPTY(&queries))
+  if ((dump_variables > 0) || !STAILQ_EMPTY(&queries))
   {
     const bool tty = isatty(STDOUT_FILENO);
 
@@ -1405,9 +1406,10 @@ main
       cdflags |= CS_DUMP_SHOW_DOCS;
 
     struct HashElemArray hea = ARRAY_HEAD_INITIALIZER;
-    if (dump_variables)
+    if (dump_variables > 0)
     {
-      hea = get_elem_list(cs, GEL_ALL_CONFIG);
+      enum GetElemListFlags gel_flags = (dump_variables > 1) ? GEL_CHANGED_CONFIG : GEL_ALL_CONFIG;
+      hea = get_elem_list(cs, gel_flags);
       rc = 0;
     }
     else

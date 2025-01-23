@@ -261,6 +261,11 @@ Dump all configuration variables as
 pairs to stdout
 .
 .TP
+.B \-D\ \-D
+.B \-DD
+Like \fB\-D\fP, but only show the config that has changed
+.
+.TP
 .B \-D\ \-O
 Like \fB\-D\fP, but show one-liner documentation
 .
