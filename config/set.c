@@ -64,7 +64,7 @@ static void cs_hashelem_free(int type, void *obj, intptr_t data)
 
     cst = cs_get_type_def(cs, he_base->type);
     if (cst && cst->destroy)
-      cst->destroy(cs, (void **) &i->var, cdef);
+      cst->destroy((void **) &i->var, cdef);
 
     FREE(&i->name);
     FREE(&i);
@@ -75,7 +75,7 @@ static void cs_hashelem_free(int type, void *obj, intptr_t data)
 
     cst = cs_get_type_def(cs, type);
     if (cst && cst->destroy)
-      cst->destroy(cs, &cdef->var, cdef);
+      cst->destroy(&cdef->var, cdef);
 
     /* If we allocated the initial value, clean it up */
     if (cdef->type & D_INTERNAL_INITIAL_SET)
@@ -268,12 +268,12 @@ struct HashElem *cs_register_variable(const struct ConfigSet *cs,
 
   // Temporarily disable the validator
   // (trust that the hard-coded initial values are sane)
-  int (*validator)(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                   intptr_t value, struct Buffer *err) = cdef->validator;
+  int (*validator)(const struct ConfigDef *cdef, intptr_t value,
+                   struct Buffer *err) = cdef->validator;
   cdef->validator = NULL;
 
   if (cst->reset)
-    cst->reset(cs, &cdef->var, cdef, err);
+    cst->reset(&cdef->var, cdef, err);
 
   cdef->validator = validator;
 
@@ -418,7 +418,7 @@ int cs_he_reset(const struct ConfigSet *cs, struct HashElem *he, struct Buffer *
 
     const struct ConfigSetType *cst = cs_get_type_def(cs, he_base->type);
     if (cst && cst->destroy)
-      cst->destroy(cs, (void **) &i->var, cdef);
+      cst->destroy((void **) &i->var, cdef);
 
     he->type = D_INTERNAL_INHERITED;
   }
@@ -430,7 +430,7 @@ int cs_he_reset(const struct ConfigSet *cs, struct HashElem *he, struct Buffer *
 
     const struct ConfigSetType *cst = cs_get_type_def(cs, he->type);
     if (cst)
-      rc = cst->reset(cs, &cdef->var, cdef, err);
+      rc = cst->reset(&cdef->var, cdef, err);
   }
 
   return rc;
@@ -480,7 +480,7 @@ bool cs_he_has_been_set(const struct ConfigSet *cs, struct HashElem *he)
   struct ConfigDef *cdef = he->data;
   void *var = &cdef->var;
 
-  return cst->has_been_set(cs, var, cdef);
+  return cst->has_been_set(var, cdef);
 }
 
 /**
@@ -537,7 +537,7 @@ int cs_he_initial_set(const struct ConfigSet *cs, struct HashElem *he,
     return CSR_ERR_CODE;
   }
 
-  int rc = cst->string_set(cs, NULL, cdef, value, err);
+  int rc = cst->string_set(NULL, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 
@@ -601,7 +601,7 @@ int cs_he_initial_get(const struct ConfigSet *cs, struct HashElem *he, struct Bu
   if (!cst)
     return CSR_ERR_CODE; // LCOV_EXCL_LINE
 
-  return cst->string_get(cs, NULL, cdef, result);
+  return cst->string_get(NULL, cdef, result);
 }
 
 /**
@@ -671,7 +671,7 @@ int cs_he_string_set(const struct ConfigSet *cs, struct HashElem *he,
     return CSR_ERR_CODE;
   }
 
-  int rc = cst->string_set(cs, var, cdef, value, err);
+  int rc = cst->string_set(var, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 
@@ -746,7 +746,7 @@ int cs_he_string_get(const struct ConfigSet *cs, struct HashElem *he, struct Buf
   if (!cdef || !cst)
     return CSR_ERR_CODE; // LCOV_EXCL_LINE
 
-  return cst->string_get(cs, var, cdef, result);
+  return cst->string_get(var, cdef, result);
 }
 
 /**
@@ -791,7 +791,7 @@ int cs_he_native_set(const struct ConfigSet *cs, struct HashElem *he,
   if (!var || !cdef)
     return CSR_ERR_CODE; // LCOV_EXCL_LINE
 
-  int rc = cst->native_set(cs, var, cdef, value, err);
+  int rc = cst->native_set(var, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 
@@ -844,7 +844,7 @@ int cs_str_native_set(const struct ConfigSet *cs, const char *name,
   if (!cst || !var || !cdef)
     return CSR_ERR_CODE; /* LCOV_EXCL_LINE */
 
-  int rc = cst->native_set(cs, var, cdef, value, err);
+  int rc = cst->native_set(var, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 
@@ -902,7 +902,7 @@ intptr_t cs_he_native_get(const struct ConfigSet *cs, struct HashElem *he, struc
     return INT_MIN;
   }
 
-  return cst->native_get(cs, var, cdef, err);
+  return cst->native_get(var, cdef, err);
 }
 
 /**
@@ -954,7 +954,7 @@ int cs_he_string_plus_equals(const struct ConfigSet *cs, struct HashElem *he,
     return CSR_ERR_INVALID | CSV_INV_NOT_IMPL;
   }
 
-  int rc = cst->string_plus_equals(cs, var, cdef, value, err);
+  int rc = cst->string_plus_equals(var, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 
@@ -1013,7 +1013,7 @@ int cs_he_string_minus_equals(const struct ConfigSet *cs, struct HashElem *he,
     return CSR_ERR_INVALID | CSV_INV_NOT_IMPL;
   }
 
-  int rc = cst->string_minus_equals(cs, var, cdef, value, err);
+  int rc = cst->string_minus_equals(var, cdef, value, err);
   if (CSR_RESULT(rc) != CSR_SUCCESS)
     return rc;
 

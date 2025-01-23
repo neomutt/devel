@@ -42,8 +42,7 @@
 /**
  * pop_auth_validator - Validate the "pop_authenticators" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int pop_auth_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                              intptr_t value, struct Buffer *err)
+static int pop_auth_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   const struct Slist *pop_auth_methods = (const struct Slist *) value;
   if (!pop_auth_methods || (pop_auth_methods->count == 0))

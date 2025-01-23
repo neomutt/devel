@@ -47,8 +47,8 @@
 /**
  * sort_string_set - Set a Sort by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int sort_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
-                           const char *value, struct Buffer *err)
+static int sort_string_set(void *var, struct ConfigDef *cdef, const char *value,
+                           struct Buffer *err)
 {
   intptr_t id = -1;
   uint16_t flags = 0;
@@ -101,7 +101,7 @@ static int sort_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 
     if (cdef->validator)
     {
-      int rc = cdef->validator(cs, cdef, (intptr_t) id, err);
+      int rc = cdef->validator(cdef, (intptr_t) id, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
         return rc | CSR_INV_VALIDATOR;
@@ -120,8 +120,7 @@ static int sort_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 /**
  * sort_string_get - Get a Sort as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int sort_string_get(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, struct Buffer *result)
+static int sort_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   int sort;
 
@@ -154,8 +153,8 @@ static int sort_string_get(const struct ConfigSet *cs, void *var,
 /**
  * sort_native_set - Set a Sort config item by int - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int sort_native_set(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int sort_native_set(void *var, const struct ConfigDef *cdef,
+                           intptr_t value, struct Buffer *err)
 {
   const char *str = NULL;
 
@@ -175,7 +174,7 @@ static int sort_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, value, err);
+    int rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -188,8 +187,7 @@ static int sort_native_set(const struct ConfigSet *cs, void *var,
 /**
  * sort_native_get - Get an int from a Sort config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t sort_native_get(const struct ConfigSet *cs, void *var,
-                                const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t sort_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   return *(short *) var;
 }
@@ -197,8 +195,7 @@ static intptr_t sort_native_get(const struct ConfigSet *cs, void *var,
 /**
  * sort_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool sort_has_been_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef)
+static bool sort_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   return (cdef->initial != (*(short *) var));
 }
@@ -206,8 +203,7 @@ static bool sort_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * sort_reset - Reset a Sort to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int sort_reset(const struct ConfigSet *cs, void *var,
-                      const struct ConfigDef *cdef, struct Buffer *err)
+static int sort_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   if (cdef->initial == (*(short *) var))
     return CSR_SUCCESS | CSR_SUC_NO_CHANGE;
@@ -217,7 +213,7 @@ static int sort_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, cdef->initial, err);
+    int rc = cdef->validator(cdef, cdef->initial, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;

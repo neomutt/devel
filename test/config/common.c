@@ -41,8 +41,7 @@ const char *divider_line = "----------------------------------------------------
 
 bool dont_fail = false;
 
-int validator_fail(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                   intptr_t value, struct Buffer *result)
+int validator_fail(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result)
 {
   if (dont_fail)
     return CSR_SUCCESS;
@@ -54,8 +53,7 @@ int validator_fail(const struct ConfigSet *cs, const struct ConfigDef *cdef,
   return CSR_ERR_INVALID;
 }
 
-int validator_warn(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                   intptr_t value, struct Buffer *result)
+int validator_warn(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result)
 {
   if (value > 1000000)
     buf_printf(result, "%s: %s, (ptr)", __func__, cdef->name);
@@ -64,8 +62,7 @@ int validator_warn(const struct ConfigSet *cs, const struct ConfigDef *cdef,
   return CSR_SUCCESS | CSR_SUC_WARNING;
 }
 
-int validator_succeed(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                      intptr_t value, struct Buffer *result)
+int validator_succeed(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result)
 {
   if (value > 1000000)
     buf_printf(result, "%s: %s, (ptr)", __func__, cdef->name);
@@ -167,7 +164,7 @@ void cs_dump_set(const struct ConfigSet *cs)
     buf_reset(result);
     struct ConfigDef *cdef = he->data;
 
-    int rc = cst->string_get(cs, &cdef->var, cdef, result);
+    int rc = cst->string_get(&cdef->var, cdef, result);
     if (CSR_RESULT(rc) == CSR_SUCCESS)
       snprintf(tmp, sizeof(tmp), "%s %s = %s", cst->name, name, buf_string(result));
     else

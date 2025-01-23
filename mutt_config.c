@@ -108,8 +108,7 @@ const struct Mapping SortMethods[] = {
 /**
  * multipart_validator - Validate the "show_multipart_alternative" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int multipart_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                               intptr_t value, struct Buffer *err)
+static int multipart_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   if (value == 0)
     return CSR_SUCCESS;

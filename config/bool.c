@@ -55,8 +55,8 @@ const char *BoolValues[] = {
 /**
  * bool_string_set - Set a Bool by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int bool_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
-                           const char *value, struct Buffer *err)
+static int bool_string_set(void *var, struct ConfigDef *cdef, const char *value,
+                           struct Buffer *err)
 {
   if (!value)
     return CSR_ERR_CODE; /* LCOV_EXCL_LINE */
@@ -87,7 +87,7 @@ static int bool_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 
     if (cdef->validator)
     {
-      int rc = cdef->validator(cs, cdef, (intptr_t) num, err);
+      int rc = cdef->validator(cdef, (intptr_t) num, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
         return rc | CSR_INV_VALIDATOR;
@@ -106,8 +106,7 @@ static int bool_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 /**
  * bool_string_get - Get a Bool as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int bool_string_get(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, struct Buffer *result)
+static int bool_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   int index;
 
@@ -126,8 +125,8 @@ static int bool_string_get(const struct ConfigSet *cs, void *var,
 /**
  * bool_native_set - Set a Bool config item by bool - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int bool_native_set(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int bool_native_set(void *var, const struct ConfigDef *cdef,
+                           intptr_t value, struct Buffer *err)
 {
   if ((value < 0) || (value > 1))
   {
@@ -143,7 +142,7 @@ static int bool_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, value, err);
+    int rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -156,8 +155,7 @@ static int bool_native_set(const struct ConfigSet *cs, void *var,
 /**
  * bool_native_get - Get a bool from a Bool config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t bool_native_get(const struct ConfigSet *cs, void *var,
-                                const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t bool_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   return *(bool *) var;
 }
@@ -165,8 +163,7 @@ static intptr_t bool_native_get(const struct ConfigSet *cs, void *var,
 /**
  * bool_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool bool_has_been_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef)
+static bool bool_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   return (cdef->initial != (*(bool *) var));
 }
@@ -174,8 +171,7 @@ static bool bool_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * bool_reset - Reset a Bool to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int bool_reset(const struct ConfigSet *cs, void *var,
-                      const struct ConfigDef *cdef, struct Buffer *err)
+static int bool_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   if (cdef->initial == (*(bool *) var))
     return CSR_SUCCESS | CSR_SUC_NO_CHANGE;
@@ -185,7 +181,7 @@ static int bool_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, cdef->initial, err);
+    int rc = cdef->validator(cdef, cdef->initial, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;

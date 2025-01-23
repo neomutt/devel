@@ -41,8 +41,7 @@
 /**
  * hcache_validator - Validate the "header_cache_backend" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int hcache_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                            intptr_t value, struct Buffer *err)
+static int hcache_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
 #ifdef USE_HCACHE
   if (value == 0)
@@ -64,8 +63,7 @@ static int hcache_validator(const struct ConfigSet *cs, const struct ConfigDef *
 /**
  * compress_method_validator - Validate the "header_cache_compress_method" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int compress_method_validator(const struct ConfigSet *cs,
-                                     const struct ConfigDef *cdef,
+static int compress_method_validator(const struct ConfigDef *cdef,
                                      intptr_t value, struct Buffer *err)
 {
 #ifdef USE_HCACHE_COMPRESSION
@@ -87,7 +85,7 @@ static int compress_method_validator(const struct ConfigSet *cs,
 /**
  * compress_level_validator - Validate the "header_cache_compress_level" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int compress_level_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
+static int compress_level_validator(const struct ConfigDef *cdef,
                                     intptr_t value, struct Buffer *err)
 {
 #ifdef USE_HCACHE_COMPRESSION

@@ -72,14 +72,13 @@ struct ConfigDef
    * @ingroup cfg_def_api
    *
    * validator - Validate a config variable
-   * @param cs    Config items
    * @param cdef  Config definition
    * @param value Native value
    * @param err   Message for the user
    * @retval #CSR_SUCCESS     Success
    * @retval #CSR_ERR_INVALID Failure
    */
-  int (*validator)(const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
+  int (*validator)(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
 
   const char *docs; ///< One-liner description
   intptr_t    var;  ///< Storage for the variable
@@ -102,7 +101,6 @@ struct ConfigSetType
    * @ingroup cfg_type_api
    *
    * string_set - Set a config item by string
-   * @param cs    Config items
    * @param var   Variable to set (may be NULL)
    * @param cdef  Variable definition
    * @param value Value to set (may be NULL)
@@ -111,17 +109,15 @@ struct ConfigSetType
    *
    * If var is NULL, then the config item's initial value will be set.
    *
-   * @pre cs   is not NULL
    * @pre cdef is not NULL
    */
-  int (*string_set)(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef, const char *value, struct Buffer *err);
+  int (*string_set)(void *var, struct ConfigDef *cdef, const char *value, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_string_get string_get()
    * @ingroup cfg_type_api
    *
    * string_get - Get a config item as a string
-   * @param cs     Config items
    * @param var    Variable to get (may be NULL)
    * @param cdef   Variable definition
    * @param result Buffer for results or error messages
@@ -129,132 +125,117 @@ struct ConfigSetType
    *
    * If var is NULL, then the config item's initial value will be returned.
    *
-   * @pre cs     is not NULL
    * @pre cdef   is not NULL
    * @pre result is not NULL
    */
-  int (*string_get)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, struct Buffer *result);
+  int (*string_get)(void *var, const struct ConfigDef *cdef, struct Buffer *result);
 
   /**
    * @defgroup cfg_type_native_set native_set()
    * @ingroup cfg_type_api
    *
    * native_set - Set a config item by string
-   * @param cs    Config items
    * @param var   Variable to set
    * @param cdef  Variable definition
    * @param value Native pointer/value to set
    * @param err   Buffer for error messages (may be NULL)
    * @retval num Result, e.g. #CSR_SUCCESS
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  int (*native_set)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
+  int (*native_set)(void *var, const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_native_get native_get()
    * @ingroup cfg_type_api
    *
    * native_get - Get a string from a config item
-   * @param cs   Config items
    * @param var  Variable to get
    * @param cdef Variable definition
    * @param err  Buffer for error messages (may be NULL)
    * @retval intptr_t Config item string
    * @retval INT_MIN  Error
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  intptr_t (*native_get)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, struct Buffer *err);
+  intptr_t (*native_get)(void *var, const struct ConfigDef *cdef, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_string_plus_equals string_plus_equals()
    * @ingroup cfg_type_api
    *
    * string_plus_equals - Add to a config item by string
-   * @param cs    Config items
    * @param var   Variable to set
    * @param cdef  Variable definition
    * @param value Value to set
    * @param err   Buffer for error messages (may be NULL)
    * @retval num Result, e.g. #CSR_SUCCESS
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  int (*string_plus_equals)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, const char *value, struct Buffer *err);
+  int (*string_plus_equals)(void *var, const struct ConfigDef *cdef, const char *value, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_string_minus_equals string_minus_equals()
    * @ingroup cfg_type_api
    *
    * string_minus_equals - Remove from a config item as a string
-   * @param cs    Config items
    * @param var   Variable to set
    * @param cdef  Variable definition
    * @param value Value to set
    * @param err   Buffer for error messages (may be NULL)
    * @retval num Result, e.g. #CSR_SUCCESS
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  int (*string_minus_equals)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, const char *value, struct Buffer *err);
+  int (*string_minus_equals)(void *var, const struct ConfigDef *cdef, const char *value, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_has_been_set has_been_set()
    * @ingroup cfg_type_api
    *
    * has_been_set - Is the config value different to its initial value?
-   * @param cs   Config items
    * @param var  Variable to check
    * @param cdef Variable definition
    * @retval true  Value differs from its initial value
    * @retval false Value is the same as its initial value
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  bool (*has_been_set)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef);
+  bool (*has_been_set)(void *var, const struct ConfigDef *cdef);
 
   /**
    * @defgroup cfg_type_reset reset()
    * @ingroup cfg_type_api
    *
    * reset - Reset a config item to its initial value
-   * @param cs   Config items
    * @param var  Variable to reset
    * @param cdef Variable definition
    * @param err  Buffer for error messages (may be NULL)
    * @retval num Result, e.g. #CSR_SUCCESS
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  int (*reset)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef, struct Buffer *err);
+  int (*reset)(void *var, const struct ConfigDef *cdef, struct Buffer *err);
 
   /**
    * @defgroup cfg_type_destroy destroy()
    * @ingroup cfg_type_api
    *
    * destroy - Destroy a config item
-   * @param cs   Config items
    * @param var  Variable to destroy
    * @param cdef Variable definition
    *
-   * @pre cs   is not NULL
    * @pre var  is not NULL
    * @pre cdef is not NULL
    */
-  void (*destroy)(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef);
+  void (*destroy)(void *var, const struct ConfigDef *cdef);
 };
 
 /**

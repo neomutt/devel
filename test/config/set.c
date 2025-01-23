@@ -42,55 +42,51 @@ static struct ConfigDef Vars[] = {
 };
 // clang-format on
 
-static int dummy_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
+static int dummy_string_set(void *var, struct ConfigDef *cdef,
                             const char *value, struct Buffer *err)
 {
   return CSR_ERR_CODE;
 }
 
-static int dummy_string_get(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, struct Buffer *result)
+static int dummy_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   return CSR_ERR_CODE;
 }
 
-static int dummy_native_set(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int dummy_native_set(void *var, const struct ConfigDef *cdef,
+                            intptr_t value, struct Buffer *err)
 {
   return CSR_ERR_CODE;
 }
 
-static intptr_t dummy_native_get(const struct ConfigSet *cs, void *var,
-                                 const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t dummy_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   return INT_MIN;
 }
 
-int dummy_plus_equals(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef,
+int dummy_plus_equals(void *var, const struct ConfigDef *cdef,
                       const char *value, struct Buffer *err)
 {
   return CSR_ERR_CODE;
 }
 
-int dummy_minus_equals(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef,
+int dummy_minus_equals(void *var, const struct ConfigDef *cdef,
                        const char *value, struct Buffer *err)
 {
   return CSR_ERR_CODE;
 }
 
-static bool dummy_has_been_set(const struct ConfigSet *cs, void *var,
-                               const struct ConfigDef *cdef)
+static bool dummy_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   return false;
 }
 
-static int dummy_reset(const struct ConfigSet *cs, void *var,
-                       const struct ConfigDef *cdef, struct Buffer *err)
+static int dummy_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   return CSR_ERR_CODE;
 }
 
-void dummy_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+void dummy_destroy(void *var, const struct ConfigDef *cdef)
 {
 }
 

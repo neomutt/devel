@@ -55,8 +55,8 @@ extern const struct ExpandoDefinition NntpFormatDef[];
 /**
  * wrapheaders_validator - Validate the "wrap_headers" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int wrapheaders_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                                 intptr_t value, struct Buffer *err)
+static int wrapheaders_validator(const struct ConfigDef *cdef, intptr_t value,
+                                 struct Buffer *err)
 {
   const int min_length = 78; // Recommendations from RFC5233
   const int max_length = 998;
@@ -73,8 +73,7 @@ static int wrapheaders_validator(const struct ConfigSet *cs, const struct Config
 /**
  * smtp_auth_validator - Validate the "smtp_authenticators" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int smtp_auth_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                               intptr_t value, struct Buffer *err)
+static int smtp_auth_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   const struct Slist *smtp_auth_methods = (const struct Slist *) value;
   if (!smtp_auth_methods || (smtp_auth_methods->count == 0))
@@ -99,7 +98,7 @@ static int smtp_auth_validator(const struct ConfigSet *cs, const struct ConfigDe
 /**
  * simple_command_validator - Validate the "sendmail" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-static int simple_command_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
+static int simple_command_validator(const struct ConfigDef *cdef,
                                     intptr_t value, struct Buffer *err)
 {
   // Check for shell metacharacters that won't do what the user expects

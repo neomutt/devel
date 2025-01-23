@@ -55,7 +55,7 @@ static bool is_valid_notmuch_url(const char *url)
  *
  * Ensure nm_default_url is of the form notmuch://[absolute path]
  */
-static int nm_default_url_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
+static int nm_default_url_validator(const struct ConfigDef *cdef,
                                     intptr_t value, struct Buffer *err)
 {
 #ifdef USE_NOTMUCH
@@ -81,8 +81,7 @@ static int nm_default_url_validator(const struct ConfigSet *cs, const struct Con
  * - month
  * - year
  */
-static int nm_query_window_timebase_validator(const struct ConfigSet *cs,
-                                              const struct ConfigDef *cdef,
+static int nm_query_window_timebase_validator(const struct ConfigDef *cdef,
                                               intptr_t value, struct Buffer *err)
 {
 #ifdef USE_NOTMUCH

@@ -59,7 +59,7 @@ struct Address *address_new(const char *addr)
 /**
  * address_destroy - Destroy an Address object - Implements ConfigSetType::destroy() - @ingroup cfg_type_destroy
  */
-static void address_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+static void address_destroy(void *var, const struct ConfigDef *cdef)
 {
   struct Address **a = var;
   if (!*a)
@@ -71,7 +71,7 @@ static void address_destroy(const struct ConfigSet *cs, void *var, const struct 
 /**
  * address_string_set - Set an Address by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int address_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
+static int address_string_set(void *var, struct ConfigDef *cdef,
                               const char *value, struct Buffer *err)
 {
   /* Store empty address as NULL */
@@ -101,17 +101,17 @@ static int address_string_set(const struct ConfigSet *cs, void *var, struct Conf
   {
     if (cdef->validator)
     {
-      rc = cdef->validator(cs, cdef, (intptr_t) addr, err);
+      rc = cdef->validator(cdef, (intptr_t) addr, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
       {
-        address_destroy(cs, &addr, cdef);
+        address_destroy(&addr, cdef);
         return rc | CSR_INV_VALIDATOR;
       }
     }
 
     /* ordinary variable setting */
-    address_destroy(cs, var, cdef);
+    address_destroy(var, cdef);
 
     *(struct Address **) var = addr;
 
@@ -134,8 +134,7 @@ static int address_string_set(const struct ConfigSet *cs, void *var, struct Conf
 /**
  * address_string_get - Get an Address as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int address_string_get(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef, struct Buffer *result)
+static int address_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   if (var)
   {
@@ -175,15 +174,14 @@ static struct Address *address_dup(struct Address *addr)
 /**
  * address_native_set - Set an Address config item by Address object - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int address_native_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef, intptr_t value,
-                              struct Buffer *err)
+static int address_native_set(void *var, const struct ConfigDef *cdef,
+                              intptr_t value, struct Buffer *err)
 {
   int rc;
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, value, err);
+    rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -204,8 +202,7 @@ static int address_native_set(const struct ConfigSet *cs, void *var,
 /**
  * address_native_get - Get an Address object from an Address config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t address_native_get(const struct ConfigSet *cs, void *var,
-                                   const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t address_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Address *addr = *(struct Address **) var;
 
@@ -215,8 +212,7 @@ static intptr_t address_native_get(const struct ConfigSet *cs, void *var,
 /**
  * address_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool address_has_been_set(const struct ConfigSet *cs, void *var,
-                                 const struct ConfigDef *cdef)
+static bool address_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   struct Buffer *value = buf_pool_get();
   struct Address *a = *(struct Address **) var;
@@ -233,8 +229,7 @@ static bool address_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * address_reset - Reset an Address to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int address_reset(const struct ConfigSet *cs, void *var,
-                         const struct ConfigDef *cdef, struct Buffer *err)
+static int address_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Address *a = NULL;
   const char *initial = (const char *) cdef->initial;
@@ -246,11 +241,11 @@ static int address_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, (intptr_t) a, err);
+    rc = cdef->validator(cdef, (intptr_t) a, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
     {
-      address_destroy(cs, &a, cdef);
+      address_destroy(&a, cdef);
       return rc | CSR_INV_VALIDATOR;
     }
   }
@@ -258,7 +253,7 @@ static int address_reset(const struct ConfigSet *cs, void *var,
   if (!a)
     rc |= CSR_SUC_EMPTY;
 
-  address_destroy(cs, var, cdef);
+  address_destroy(var, cdef);
 
   *(struct Address **) var = a;
   return rc;

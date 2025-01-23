@@ -42,7 +42,7 @@
 /**
  * myvar_destroy - Destroy a MyVar - Implements ConfigSetType::destroy() - @ingroup cfg_type_destroy
  */
-static void myvar_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+static void myvar_destroy(void *var, const struct ConfigDef *cdef)
 {
   const char **str = (const char **) var;
   if (!*str)
@@ -54,7 +54,7 @@ static void myvar_destroy(const struct ConfigSet *cs, void *var, const struct Co
 /**
  * myvar_string_set - Set a MyVar by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int myvar_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
+static int myvar_string_set(void *var, struct ConfigDef *cdef,
                             const char *value, struct Buffer *err)
 {
   /* Store empty myvars as NULL */
@@ -68,7 +68,7 @@ static int myvar_string_set(const struct ConfigSet *cs, void *var, struct Config
     if (mutt_str_equal(value, (*(char **) var)))
       return CSR_SUCCESS | CSR_SUC_NO_CHANGE;
 
-    myvar_destroy(cs, var, cdef);
+    myvar_destroy(var, cdef);
 
     const char *str = mutt_str_dup(value);
     if (!str)
@@ -91,8 +91,7 @@ static int myvar_string_set(const struct ConfigSet *cs, void *var, struct Config
 /**
  * myvar_string_get - Get a MyVar as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int myvar_string_get(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, struct Buffer *result)
+static int myvar_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   const char *str = NULL;
 
@@ -111,8 +110,8 @@ static int myvar_string_get(const struct ConfigSet *cs, void *var,
 /**
  * myvar_native_set - Set a MyVar config item by string - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int myvar_native_set(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int myvar_native_set(void *var, const struct ConfigDef *cdef,
+                            intptr_t value, struct Buffer *err)
 {
   const char *str = (const char *) value;
 
@@ -125,7 +124,7 @@ static int myvar_native_set(const struct ConfigSet *cs, void *var,
 
   int rc;
 
-  myvar_destroy(cs, var, cdef);
+  myvar_destroy(var, cdef);
 
   str = mutt_str_dup(str);
   rc = CSR_SUCCESS;
@@ -139,8 +138,7 @@ static int myvar_native_set(const struct ConfigSet *cs, void *var,
 /**
  * myvar_native_get - Get a string from a MyVar config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t myvar_native_get(const struct ConfigSet *cs, void *var,
-                                 const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t myvar_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   const char *str = *(const char **) var;
 
@@ -150,8 +148,7 @@ static intptr_t myvar_native_get(const struct ConfigSet *cs, void *var,
 /**
  * myvar_string_plus_equals - Add to a MyVar by string - Implements ConfigSetType::string_plus_equals() - @ingroup cfg_type_string_plus_equals
  */
-static int myvar_string_plus_equals(const struct ConfigSet *cs, void *var,
-                                    const struct ConfigDef *cdef,
+static int myvar_string_plus_equals(void *var, const struct ConfigDef *cdef,
                                     const char *value, struct Buffer *err)
 {
   /* Skip if the value is missing or empty string*/
@@ -168,7 +165,7 @@ static int myvar_string_plus_equals(const struct ConfigSet *cs, void *var,
   else
     str = mutt_str_dup(value);
 
-  myvar_destroy(cs, var, cdef);
+  myvar_destroy(var, cdef);
   *var_str = str;
 
   return rc;
@@ -177,8 +174,7 @@ static int myvar_string_plus_equals(const struct ConfigSet *cs, void *var,
 /**
  * myvar_reset - Reset a MyVar to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int myvar_reset(const struct ConfigSet *cs, void *var,
-                       const struct ConfigDef *cdef, struct Buffer *err)
+static int myvar_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   int rc = CSR_SUCCESS;
 
@@ -192,7 +188,7 @@ static int myvar_reset(const struct ConfigSet *cs, void *var,
     return rc | CSR_SUC_NO_CHANGE;
   }
 
-  myvar_destroy(cs, var, cdef);
+  myvar_destroy(var, cdef);
 
   if (!str)
     rc |= CSR_SUC_EMPTY;

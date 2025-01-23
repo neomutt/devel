@@ -49,9 +49,9 @@ extern const struct ConfigSetType CstSlist;
 extern const struct ConfigSetType CstSort;
 extern const struct ConfigSetType CstString;
 
-int validator_succeed(const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
-int validator_warn   (const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
-int validator_fail   (const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
+int validator_succeed(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
+int validator_warn   (const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
+int validator_fail   (const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
 
 void log_line(const char *fn);
 void short_line(void);

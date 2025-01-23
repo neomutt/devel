@@ -42,10 +42,10 @@
 /**
  * enum_string_set - Set an Enumeration by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int enum_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
-                           const char *value, struct Buffer *err)
+static int enum_string_set(void *var, struct ConfigDef *cdef, const char *value,
+                           struct Buffer *err)
 {
-  if (!cs || !cdef || !value)
+  if (!value)
     return CSR_ERR_CODE; /* LCOV_EXCL_LINE */
 
   struct EnumDef *ed = (struct EnumDef *) cdef->data;
@@ -69,7 +69,7 @@ static int enum_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 
     if (cdef->validator)
     {
-      int rc = cdef->validator(cs, cdef, (intptr_t) num, err);
+      int rc = cdef->validator(cdef, (intptr_t) num, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
         return rc | CSR_INV_VALIDATOR;
@@ -88,8 +88,7 @@ static int enum_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 /**
  * enum_string_get - Get an Enumeration as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int enum_string_get(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, struct Buffer *result)
+static int enum_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   unsigned int value;
 
@@ -116,8 +115,8 @@ static int enum_string_get(const struct ConfigSet *cs, void *var,
 /**
  * enum_native_set - Set an Enumeration config item by int - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int enum_native_set(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int enum_native_set(void *var, const struct ConfigDef *cdef,
+                           intptr_t value, struct Buffer *err)
 {
   struct EnumDef *ed = (struct EnumDef *) cdef->data;
   if (!ed || !ed->lookup)
@@ -138,7 +137,7 @@ static int enum_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, value, err);
+    int rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -151,8 +150,7 @@ static int enum_native_set(const struct ConfigSet *cs, void *var,
 /**
  * enum_native_get - Get an int object from an Enumeration config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t enum_native_get(const struct ConfigSet *cs, void *var,
-                                const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t enum_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   return *(unsigned char *) var;
 }
@@ -160,8 +158,7 @@ static intptr_t enum_native_get(const struct ConfigSet *cs, void *var,
 /**
  * enum_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool enum_has_been_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef)
+static bool enum_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   return (cdef->initial != (*(unsigned char *) var));
 }
@@ -169,8 +166,7 @@ static bool enum_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * enum_reset - Reset an Enumeration to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int enum_reset(const struct ConfigSet *cs, void *var,
-                      const struct ConfigDef *cdef, struct Buffer *err)
+static int enum_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   if (cdef->initial == (*(unsigned char *) var))
     return CSR_SUCCESS | CSR_SUC_NO_CHANGE;
@@ -180,7 +176,7 @@ static int enum_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    int rc = cdef->validator(cs, cdef, cdef->initial, err);
+    int rc = cdef->validator(cdef, cdef->initial, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;

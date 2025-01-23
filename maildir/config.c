@@ -41,8 +41,7 @@
  *
  * Ensure maildir_field_delimiter is a single non-alphanumeric non-(-.\/) character.
  */
-static int maildir_field_delimiter_validator(const struct ConfigSet *cs,
-                                             const struct ConfigDef *cdef,
+static int maildir_field_delimiter_validator(const struct ConfigDef *cdef,
                                              intptr_t value, struct Buffer *err)
 {
   const char *delim = (const char *) value;

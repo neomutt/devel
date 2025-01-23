@@ -267,8 +267,7 @@ int mutt_log_start(void)
 /**
  * level_validator - Validate the "debug_level" config variable - Implements ConfigDef::validator() - @ingroup cfg_def_validator
  */
-int level_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                    intptr_t value, struct Buffer *err)
+int level_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   if ((value < 0) || (value >= LL_MAX))
   {

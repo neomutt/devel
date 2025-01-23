@@ -46,7 +46,7 @@
 /**
  * expando_destroy - Destroy an Expando object - Implements ConfigSetType::destroy() - @ingroup cfg_type_destroy
  */
-static void expando_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+static void expando_destroy(void *var, const struct ConfigDef *cdef)
 {
   struct Expando **a = var;
   if (!*a)
@@ -58,7 +58,7 @@ static void expando_destroy(const struct ConfigSet *cs, void *var, const struct 
 /**
  * expando_string_set - Set an Expando by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int expando_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
+static int expando_string_set(void *var, struct ConfigDef *cdef,
                               const char *value, struct Buffer *err)
 {
   /* Store empty string list as NULL */
@@ -101,7 +101,7 @@ static int expando_string_set(const struct ConfigSet *cs, void *var, struct Conf
 
     if (cdef->validator)
     {
-      rc = cdef->validator(cs, cdef, (intptr_t) exp, err);
+      rc = cdef->validator(cdef, (intptr_t) exp, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
       {
@@ -110,7 +110,7 @@ static int expando_string_set(const struct ConfigSet *cs, void *var, struct Conf
       }
     }
 
-    expando_destroy(cs, var, cdef);
+    expando_destroy(var, cdef);
 
     *(struct Expando **) var = exp;
 
@@ -132,8 +132,7 @@ static int expando_string_set(const struct ConfigSet *cs, void *var, struct Conf
 /**
  * expando_string_get - Get an Expando as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int expando_string_get(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef, struct Buffer *result)
+static int expando_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   const char *str = NULL;
 
@@ -158,9 +157,8 @@ static int expando_string_get(const struct ConfigSet *cs, void *var,
 /**
  * expando_native_set - Set an Expando object from an Expando config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static int expando_native_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef, intptr_t value,
-                              struct Buffer *err)
+static int expando_native_set(void *var, const struct ConfigDef *cdef,
+                              intptr_t value, struct Buffer *err)
 {
   int rc;
 
@@ -180,7 +178,7 @@ static int expando_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, value, err);
+    rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -208,8 +206,7 @@ static int expando_native_set(const struct ConfigSet *cs, void *var,
 /**
  * expando_native_get - Get an Expando object from an Expando config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t expando_native_get(const struct ConfigSet *cs, void *var,
-                                   const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t expando_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Expando *exp = *(struct Expando **) var;
 
@@ -219,8 +216,7 @@ static intptr_t expando_native_get(const struct ConfigSet *cs, void *var,
 /**
  * expando_string_plus_equals - Add to an Expando by string - Implements ConfigSetType::string_plus_equals() - @ingroup cfg_type_string_plus_equals
  */
-static int expando_string_plus_equals(const struct ConfigSet *cs, void *var,
-                                      const struct ConfigDef *cdef,
+static int expando_string_plus_equals(void *var, const struct ConfigDef *cdef,
                                       const char *value, struct Buffer *err)
 {
   /* Skip if the value is missing or empty string*/
@@ -261,7 +257,7 @@ static int expando_string_plus_equals(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, (intptr_t) exp_new, err);
+    rc = cdef->validator(cdef, (intptr_t) exp_new, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
     {
@@ -270,7 +266,7 @@ static int expando_string_plus_equals(const struct ConfigSet *cs, void *var,
     }
   }
 
-  expando_destroy(cs, var, cdef);
+  expando_destroy(var, cdef);
   *(struct Expando **) var = exp_new;
 
   return rc;
@@ -279,8 +275,7 @@ static int expando_string_plus_equals(const struct ConfigSet *cs, void *var,
 /**
  * expando_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool expando_has_been_set(const struct ConfigSet *cs, void *var,
-                                 const struct ConfigDef *cdef)
+static bool expando_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   const char *initial = (const char *) cdef->initial;
 
@@ -293,8 +288,7 @@ static bool expando_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * expando_reset - Reset an Expando to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int expando_reset(const struct ConfigSet *cs, void *var,
-                         const struct ConfigDef *cdef, struct Buffer *err)
+static int expando_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Expando *exp = NULL;
   const char *initial = (const char *) cdef->initial;
@@ -322,11 +316,11 @@ static int expando_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, (intptr_t) exp, err);
+    rc = cdef->validator(cdef, (intptr_t) exp, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
     {
-      expando_destroy(cs, &exp, cdef);
+      expando_destroy(&exp, cdef);
       return rc | CSR_INV_VALIDATOR;
     }
   }
@@ -334,7 +328,7 @@ static int expando_reset(const struct ConfigSet *cs, void *var,
   if (!exp)
     rc |= CSR_SUC_EMPTY;
 
-  expando_destroy(cs, var, cdef);
+  expando_destroy(var, cdef);
 
   *(struct Expando **) var = exp;
   return rc;

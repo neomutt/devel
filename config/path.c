@@ -75,7 +75,7 @@ static char *path_tidy(const char *path, bool is_dir)
 /**
  * path_destroy - Destroy a Path - Implements ConfigSetType::destroy() - @ingroup cfg_type_destroy
  */
-static void path_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+static void path_destroy(void *var, const struct ConfigDef *cdef)
 {
   const char **str = (const char **) var;
   if (!*str)
@@ -87,8 +87,8 @@ static void path_destroy(const struct ConfigSet *cs, void *var, const struct Con
 /**
  * path_string_set - Set a Path by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int path_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
-                           const char *value, struct Buffer *err)
+static int path_string_set(void *var, struct ConfigDef *cdef, const char *value,
+                           struct Buffer *err)
 {
   /* Store empty paths as NULL */
   if (value && (value[0] == '\0'))
@@ -112,13 +112,13 @@ static int path_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 
     if (cdef->validator)
     {
-      rc = cdef->validator(cs, cdef, (intptr_t) value, err);
+      rc = cdef->validator(cdef, (intptr_t) value, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
         return rc | CSR_INV_VALIDATOR;
     }
 
-    path_destroy(cs, var, cdef);
+    path_destroy(var, cdef);
 
     const char *str = path_tidy(value, cdef->type & D_PATH_DIR);
     if (!str)
@@ -141,8 +141,7 @@ static int path_string_set(const struct ConfigSet *cs, void *var, struct ConfigD
 /**
  * path_string_get - Get a Path as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int path_string_get(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, struct Buffer *result)
+static int path_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   const char *str = NULL;
 
@@ -161,8 +160,8 @@ static int path_string_get(const struct ConfigSet *cs, void *var,
 /**
  * path_native_set - Set a Path config item by string - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int path_native_set(const struct ConfigSet *cs, void *var,
-                           const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int path_native_set(void *var, const struct ConfigDef *cdef,
+                           intptr_t value, struct Buffer *err)
 {
   const char *str = (const char *) value;
 
@@ -186,13 +185,13 @@ static int path_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, value, err);
+    rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
   }
 
-  path_destroy(cs, var, cdef);
+  path_destroy(var, cdef);
 
   str = path_tidy(str, cdef->type & D_PATH_DIR);
   rc = CSR_SUCCESS;
@@ -206,8 +205,7 @@ static int path_native_set(const struct ConfigSet *cs, void *var,
 /**
  * path_native_get - Get a string from a Path config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t path_native_get(const struct ConfigSet *cs, void *var,
-                                const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t path_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   const char *str = *(const char **) var;
 
@@ -217,8 +215,7 @@ static intptr_t path_native_get(const struct ConfigSet *cs, void *var,
 /**
  * path_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool path_has_been_set(const struct ConfigSet *cs, void *var,
-                              const struct ConfigDef *cdef)
+static bool path_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   const char *initial = path_tidy((const char *) cdef->initial, cdef->type & D_PATH_DIR);
   const char *value = *(const char **) var;
@@ -231,8 +228,7 @@ static bool path_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * path_reset - Reset a Path to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int path_reset(const struct ConfigSet *cs, void *var,
-                      const struct ConfigDef *cdef, struct Buffer *err)
+static int path_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   int rc = CSR_SUCCESS;
 
@@ -254,7 +250,7 @@ static int path_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, cdef->initial, err);
+    rc = cdef->validator(cdef, cdef->initial, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
     {
@@ -263,7 +259,7 @@ static int path_reset(const struct ConfigSet *cs, void *var,
     }
   }
 
-  path_destroy(cs, var, cdef);
+  path_destroy(var, cdef);
 
   if (!str)
     rc |= CSR_SUC_EMPTY;

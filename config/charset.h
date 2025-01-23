@@ -29,7 +29,7 @@ struct Buffer;
 struct ConfigDef;
 struct ConfigSet;
 
-int charset_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
-int charset_slist_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
+int charset_slist_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
+int charset_validator      (const struct ConfigDef *cdef, intptr_t value, struct Buffer *err);
 
 #endif /* MUTT_CONFIG_CHARSET_H */

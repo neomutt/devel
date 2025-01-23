@@ -42,8 +42,7 @@
  *
  * Validate the config variables that contain a single charset.
  */
-int charset_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                      intptr_t value, struct Buffer *err)
+int charset_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   if (value == 0)
     return CSR_SUCCESS;
@@ -82,8 +81,7 @@ int charset_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
  *
  * Validate the config variables that can contain a multiple charsets.
  */
-int charset_slist_validator(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                            intptr_t value, struct Buffer *err)
+int charset_slist_validator(const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
 {
   if (value == 0)
     return CSR_SUCCESS;

@@ -35,12 +35,9 @@
 
 extern bool dont_fail;
 
-int validator_fail(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                   intptr_t value, struct Buffer *result);
-int validator_warn(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                   intptr_t value, struct Buffer *result);
-int validator_succeed(const struct ConfigSet *cs, const struct ConfigDef *cdef,
-                      intptr_t value, struct Buffer *result);
+int validator_fail(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
+int validator_warn(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
+int validator_succeed(const struct ConfigDef *cdef, intptr_t value, struct Buffer *result);
 int log_observer(struct NotifyCallback *nc);
 void set_list(const struct ConfigSet *cs);
 void log_line(const char *fn);

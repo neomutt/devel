@@ -82,7 +82,7 @@ void regex_free(struct Regex **ptr)
 /**
  * regex_destroy - Destroy a Regex object - Implements ConfigSetType::destroy() - @ingroup cfg_type_destroy
  */
-static void regex_destroy(const struct ConfigSet *cs, void *var, const struct ConfigDef *cdef)
+static void regex_destroy(void *var, const struct ConfigDef *cdef)
 {
   struct Regex **r = var;
   if (!*r)
@@ -139,7 +139,7 @@ struct Regex *regex_new(const char *str, uint32_t flags, struct Buffer *err)
 /**
  * regex_string_set - Set a Regex by string - Implements ConfigSetType::string_set() - @ingroup cfg_type_string_set
  */
-static int regex_string_set(const struct ConfigSet *cs, void *var, struct ConfigDef *cdef,
+static int regex_string_set(void *var, struct ConfigDef *cdef,
                             const char *value, struct Buffer *err)
 {
   /* Store empty regexes as NULL */
@@ -168,7 +168,7 @@ static int regex_string_set(const struct ConfigSet *cs, void *var, struct Config
 
     if (cdef->validator)
     {
-      rc = cdef->validator(cs, cdef, (intptr_t) r, err);
+      rc = cdef->validator(cdef, (intptr_t) r, err);
 
       if (CSR_RESULT(rc) != CSR_SUCCESS)
       {
@@ -177,7 +177,7 @@ static int regex_string_set(const struct ConfigSet *cs, void *var, struct Config
       }
     }
 
-    regex_destroy(cs, var, cdef);
+    regex_destroy(var, cdef);
 
     *(struct Regex **) var = r;
 
@@ -199,8 +199,7 @@ static int regex_string_set(const struct ConfigSet *cs, void *var, struct Config
 /**
  * regex_string_get - Get a Regex as a string - Implements ConfigSetType::string_get() - @ingroup cfg_type_string_get
  */
-static int regex_string_get(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, struct Buffer *result)
+static int regex_string_get(void *var, const struct ConfigDef *cdef, struct Buffer *result)
 {
   const char *str = NULL;
 
@@ -225,8 +224,8 @@ static int regex_string_get(const struct ConfigSet *cs, void *var,
 /**
  * regex_native_set - Set a Regex config item by Regex object - Implements ConfigSetType::native_set() - @ingroup cfg_type_native_set
  */
-static int regex_native_set(const struct ConfigSet *cs, void *var,
-                            const struct ConfigDef *cdef, intptr_t value, struct Buffer *err)
+static int regex_native_set(void *var, const struct ConfigDef *cdef,
+                            intptr_t value, struct Buffer *err)
 {
   int rc;
 
@@ -238,7 +237,7 @@ static int regex_native_set(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, value, err);
+    rc = cdef->validator(cdef, value, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
       return rc | CSR_INV_VALIDATOR;
@@ -272,8 +271,7 @@ static int regex_native_set(const struct ConfigSet *cs, void *var,
 /**
  * regex_native_get - Get a Regex object from a Regex config item - Implements ConfigSetType::native_get() - @ingroup cfg_type_native_get
  */
-static intptr_t regex_native_get(const struct ConfigSet *cs, void *var,
-                                 const struct ConfigDef *cdef, struct Buffer *err)
+static intptr_t regex_native_get(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Regex *r = *(struct Regex **) var;
 
@@ -283,8 +281,7 @@ static intptr_t regex_native_get(const struct ConfigSet *cs, void *var,
 /**
  * regex_has_been_set - Is the config value different to its initial value? - Implements ConfigSetType::has_been_set() - @ingroup cfg_type_has_been_set
  */
-static bool regex_has_been_set(const struct ConfigSet *cs, void *var,
-                               const struct ConfigDef *cdef)
+static bool regex_has_been_set(void *var, const struct ConfigDef *cdef)
 {
   const char *initial = (const char *) cdef->initial;
 
@@ -297,8 +294,7 @@ static bool regex_has_been_set(const struct ConfigSet *cs, void *var,
 /**
  * regex_reset - Reset a Regex to its initial value - Implements ConfigSetType::reset() - @ingroup cfg_type_reset
  */
-static int regex_reset(const struct ConfigSet *cs, void *var,
-                       const struct ConfigDef *cdef, struct Buffer *err)
+static int regex_reset(void *var, const struct ConfigDef *cdef, struct Buffer *err)
 {
   struct Regex *r = NULL;
   const char *initial = (const char *) cdef->initial;
@@ -325,11 +321,11 @@ static int regex_reset(const struct ConfigSet *cs, void *var,
 
   if (cdef->validator)
   {
-    rc = cdef->validator(cs, cdef, (intptr_t) r, err);
+    rc = cdef->validator(cdef, (intptr_t) r, err);
 
     if (CSR_RESULT(rc) != CSR_SUCCESS)
     {
-      regex_destroy(cs, &r, cdef);
+      regex_destroy(&r, cdef);
       return rc | CSR_INV_VALIDATOR;
     }
   }
@@ -337,7 +333,7 @@ static int regex_reset(const struct ConfigSet *cs, void *var,
   if (!r)
     rc |= CSR_SUC_EMPTY;
 
-  regex_destroy(cs, var, cdef);
+  regex_destroy(var, cdef);
 
   *(struct Regex **) var = r;
   return rc;
