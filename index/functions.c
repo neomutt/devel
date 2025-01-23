@@ -201,6 +201,7 @@ const struct MenuFuncOp OpIndex[] = { /* map: index */
   { "sidebar-prev-new",              OP_SIDEBAR_PREV_NEW },
   { "sidebar-toggle-virtual",        OP_SIDEBAR_TOGGLE_VIRTUAL },
   { "sidebar-toggle-visible",        OP_SIDEBAR_TOGGLE_VISIBLE },
+  { "sidebar-start-search",          OP_SIDEBAR_START_SEARCH },
   { "sort-mailbox",                  OP_SORT },
   { "sort-reverse",                  OP_SORT_REVERSE },
   { "sync-mailbox",                  OP_MAIN_SYNC_FOLDER },

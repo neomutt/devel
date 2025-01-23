@@ -467,7 +467,7 @@ static bool prepare_sidebar(struct SidebarWindowData *wdata, int page_size)
 
   /* If `$sidebar_new_mail_only` or `$sidebar_non_empty_mailbox_only` is set,
    * some entries may be hidden so we need to scan for the framing interval */
-  if (c_sidebar_new_mail_only || c_sidebar_non_empty_mailbox_only)
+  if (c_sidebar_new_mail_only || c_sidebar_non_empty_mailbox_only || wdata->repage)
   {
     wdata->top_index = -1;
     wdata->bot_index = -1;

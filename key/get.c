@@ -294,7 +294,7 @@ struct KeyEvent mutt_getch(GetChFlags flags)
 void km_error_key(enum MenuType mtype)
 {
   struct Keymap *key = km_find_func(mtype, OP_HELP);
-  if (!key && (mtype != MENU_EDITOR) && (mtype != MENU_PAGER))
+  if (!key && (mtype != MENU_EDITOR) && (mtype != MENU_PAGER) && (mtype != MENU_SIDEBAR))
     key = km_find_func(MENU_GENERIC, OP_HELP);
 
   if (!key)
@@ -326,11 +326,12 @@ static struct KeyEvent retry_generic(enum MenuType mtype, keycode_t *keys,
   for (; keyslen; keyslen--)
     mutt_unget_ch(keys[keyslen - 1]);
 
-  if ((mtype != MENU_EDITOR) && (mtype != MENU_GENERIC) && (mtype != MENU_PAGER))
+  if ((mtype != MENU_EDITOR) && (mtype != MENU_GENERIC) &&
+      (mtype != MENU_PAGER) && (mtype != MENU_SIDEBAR))
   {
     return km_dokey_event(MENU_GENERIC, flags);
   }
-  if ((mtype != MENU_EDITOR) && (mtype != MENU_GENERIC))
+  if ((mtype != MENU_EDITOR) && (mtype != MENU_GENERIC) && (mtype != MENU_SIDEBAR))
   {
     /* probably a good idea to flush input here so we can abort macros */
     mutt_flushinp();
@@ -352,7 +353,7 @@ struct KeyEvent km_dokey_event(enum MenuType mtype, GetChFlags flags)
   int pos = 0;
   int n = 0;
 
-  if (!map && (mtype != MENU_EDITOR))
+  if (!map && (mtype != MENU_EDITOR || mtype != MENU_SIDEBAR))
     return retry_generic(mtype, NULL, 0, 0, flags);
 
   while (true)
@@ -373,7 +374,8 @@ struct KeyEvent km_dokey_event(enum MenuType mtype, GetChFlags flags)
       if ((funcs = km_get_table(mtype)) && (func = mutt_get_func(funcs, event.op)))
         return event;
 
-      if ((mtype != MENU_EDITOR) && (mtype != MENU_PAGER) && (mtype != MENU_GENERIC))
+      if ((mtype != MENU_EDITOR) && (mtype != MENU_PAGER) &&
+          (mtype != MENU_GENERIC) && (mtype != MENU_SIDEBAR))
       {
         /* check generic menu type */
         funcs = OpGeneric;

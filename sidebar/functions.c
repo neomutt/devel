@@ -30,6 +30,7 @@
 #include "config.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include "private.h"
 #include "mutt/lib.h"
 #include "config/lib.h"
@@ -37,7 +38,16 @@
 #include "gui/lib.h"
 #include "functions.h"
 #include "lib.h"
+#include "editor/lib.h"
 #include "index/lib.h"
+#include "key/lib.h"
+
+const struct MenuOpSeq SidebarDefaultBindings[] = {
+  { OP_EDITOR_BACKSPACE, "<backspace>" },
+  { OP_SIDEBAR_PREV, "<up>" },
+  { OP_SIDEBAR_NEXT, "<down>" },
+  { 0, NULL },
+};
 
 /**
  * sb_next - Find the next unhidden Mailbox
@@ -347,6 +357,76 @@ static int op_sidebar_toggle_virtual(struct SidebarWindowData *wdata, int op)
   return FR_SUCCESS;
 }
 
+/**
+ * matcher_cb - XXX
+ * @param data    XXX
+ * @param pattern XXX
+ */
+void matcher_cb(void *data, const char *pattern)
+{
+  struct SbEntry *sbe = NULL;
+  struct SbEntry **sbep = NULL;
+
+  struct MuttWindow *win = data;
+  struct SidebarWindowData *wdata = win->wdata;
+  wdata->hil_index = 0;
+  wdata->repage = 1;
+
+  ARRAY_FOREACH(sbep, &wdata->entries)
+  {
+    sbe = *sbep;
+    if (strcasestr(sbe->box, pattern) != NULL)
+    {
+      if (!wdata->hil_index)
+        wdata->hil_index = ARRAY_FOREACH_IDX;
+      sbe->mailbox->visible = true;
+    }
+    else
+      sbe->mailbox->visible = false;
+  }
+  wdata->win->actions |= WA_RECALC;
+}
+
+/**
+ * op_sidebar_start_search - Selects the last unhidden mailbox - Implements ::sidebar_function_t - @ingroup sidebar_function_api
+ */
+static int op_sidebar_start_search(struct SidebarWindowData *wdata, int op)
+{
+  struct Buffer *buf = buf_pool_get();
+  buf_alloc(buf, 128);
+  struct SbEntry *sbe = NULL;
+  struct SbEntry **sbep = NULL;
+  int orghlidx = wdata->hil_index;
+
+  ARRAY_FOREACH(sbep, &wdata->entries)
+  {
+    sbe = *sbep;
+    if (sbe->box[0] == 0)
+    {
+      char *last = strrchr(sbe->mailbox->realpath, '/');
+      if (!last)
+        last = sbe->mailbox->realpath;
+      mutt_str_copy(sbe->box, last, sizeof(sbe->box));
+    }
+  }
+
+  if (mw_get_field_notify(_("Sidebar search: "), buf, matcher_cb, wdata->win) != 0)
+    buf_pool_release(&buf);
+
+  /* drop the overlay */
+  ARRAY_FOREACH(sbep, &wdata->entries)
+  (*sbep)->mailbox->visible = true;
+  wdata->win->actions |= WA_RECALC;
+
+  if (!buf || (buf_is_empty(buf) && orghlidx == wdata->hil_index))
+    return FR_NO_ACTION;
+
+  struct MuttWindow *dlg = dialog_find(wdata->win);
+  index_change_folder(dlg, sb_get_highlight(wdata->win));
+
+  return FR_SUCCESS;
+}
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -365,6 +445,7 @@ static const struct SidebarFunction SidebarFunctions[] = {
   { OP_SIDEBAR_PREV_NEW,       op_sidebar_prev_new },
   { OP_SIDEBAR_TOGGLE_VIRTUAL, op_sidebar_toggle_virtual },
   { OP_SIDEBAR_TOGGLE_VISIBLE, op_sidebar_toggle_visible },
+  { OP_SIDEBAR_START_SEARCH,   op_sidebar_start_search },
   { 0, NULL },
   // clang-format on
 };

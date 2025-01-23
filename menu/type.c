@@ -56,6 +56,7 @@ const struct Mapping MenuNames[] = {
 #endif
   { "query",            MENU_QUERY },
   { "generic",          MENU_GENERIC },
+  { "sidebar",          MENU_SIDEBAR },
   { NULL, 0 },
   // clang-format on
 };

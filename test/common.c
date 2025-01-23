@@ -73,6 +73,11 @@ static struct ConfigDef Vars[] = {
   extern const struct ConfigSetType Cst##NAME;                                 \
   cs_register_type(CS, &Cst##NAME)
 
+int sb_function_dispatcher(struct MuttWindow *win, int op)
+{
+  return 0;
+}
+
 const char *get_test_dir(void)
 {
   return mutt_str_getenv(TEST_DIR);

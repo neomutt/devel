@@ -54,6 +54,7 @@ enum MenuType
   MENU_POSTPONED,        ///< Select a postponed email
   MENU_QUERY,            ///< Select from results of external query
   MENU_SMIME,            ///< SMIME encryption menu
+  MENU_SIDEBAR,          ///< Sidebar menu (list of mailboxes)
   MENU_MAX,
 };
 

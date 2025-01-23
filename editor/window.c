@@ -40,6 +40,7 @@
 #include "history/lib.h"
 #include "key/lib.h"
 #include "menu/lib.h"
+#include "sidebar/lib.h"
 #include "functions.h"
 #include "muttlib.h"
 #include "state.h"
@@ -405,6 +406,162 @@ int mw_get_field(const char *prompt, struct Buffer *buf, CompletionFlags complet
     buf_fix_dptr(buf);
   else
     buf_reset(buf);
+
+  enter_state_free(&es);
+
+  return rc;
+}
+
+/**
+ * mw_get_field_notify - Ask the user for a string and call a notify function on keypress
+ * @param[in]  prompt   Prompt
+ * @param[in]  buf      Buffer for the result
+ * @param[in]  callback Callback function used for notification
+ * @param[in]  data     Data to pass to callback function
+ * @retval 0  Selection made
+ * @retval -1 Aborted
+ */
+int mw_get_field_notify(const char *prompt, struct Buffer *buf,
+                        void (*callback)(void *, const char *), void *data)
+{
+  struct Buffer *cbuf = buf_pool_get();
+  buf_alloc(cbuf, 128);
+  struct MuttWindow *win = mutt_window_new(WT_CUSTOM, MUTT_WIN_ORIENT_VERTICAL, MUTT_WIN_SIZE_FIXED,
+                                           MUTT_WIN_SIZE_UNLIMITED, 1);
+
+  int rc = 0;
+
+  struct EnterState *es = enter_state_new();
+
+  win->help_data = EditorHelp;
+  win->help_menu = MENU_EDITOR;
+
+  msgcont_push_window(win);
+  struct MuttWindow *old_focus = window_set_focus(win);
+
+  mbstate_t mbstate = { 0 };
+  // clang-format off
+  struct EnterWindowData wdata = { buf, 0, es, 0, NULL, NULL, prompt, ENTER_REDRAW_NONE, MUTT_COMP_NO_FLAGS, true, NULL, 0, &mbstate, 0, false, NULL, 0, 0 };
+  // clang-format on
+
+  win->wdata = &wdata;
+  win->wdata_free = NULL; // No need, we hold the data
+  win->actions |= WA_RECALC;
+  win->recalc = enter_recalc;
+  win->repaint = enter_repaint;
+  win->recursor = enter_recursor;
+
+  window_redraw(win);
+
+  if (es->wbuf[0] == L'\0')
+  {
+    /* Initialise wbuf from buf */
+    wdata.state->wbuflen = 0;
+    wdata.state->lastchar = mutt_mb_mbstowcs(&wdata.state->wbuf, &wdata.state->wbuflen,
+                                             0, buf_string(wdata.buffer));
+    wdata.redraw = ENTER_REDRAW_INIT;
+  }
+  else
+  {
+    wdata.redraw = ENTER_REDRAW_LINE;
+    wdata.first = false;
+  }
+
+  do
+  {
+    memset(&mbstate, 0, sizeof(mbstate));
+
+    do
+    {
+      if (wdata.redraw != ENTER_REDRAW_NONE)
+        win->actions |= WA_REPAINT;
+
+      window_redraw(NULL);
+      struct KeyEvent event = km_dokey_event(MENU_SIDEBAR, GETCH_IGNORE_MACRO);
+      if ((event.op == OP_TIMEOUT) || (event.op == OP_REPAINT))
+      {
+        continue;
+      }
+
+      if (event.op == OP_ABORT)
+      {
+        rc = -1;
+        goto bye;
+      }
+
+      if (event.op == OP_NULL)
+      {
+        mutt_debug(LL_DEBUG5, "Got char %c (0x%02x)\n", event.ch, event.ch);
+        if (self_insert(&wdata, event.ch))
+        {
+          rc = 0;
+          goto bye;
+        }
+        win->actions |= WA_REPAINT;
+        goto notif;
+      }
+      else
+      {
+        mutt_debug(LL_DEBUG1, "Got op %s (%d)\n", opcodes_get_name(event.op),
+                   event.op);
+      }
+
+      int rc_disp = sb_function_dispatcher(data, event.op);
+
+      if (rc_disp == FR_SUCCESS)
+        rc_disp = FR_CONTINUE;
+      else
+        rc_disp = enter_function_dispatcher(win, event.op);
+
+      wdata.redraw = ENTER_REDRAW_LINE;
+      switch (rc_disp)
+      {
+        case FR_NO_ACTION:
+        {
+          if (self_insert(&wdata, event.ch))
+          {
+            rc = 0;
+            goto bye;
+          }
+          break;
+        }
+        case FR_CONTINUE: // repaint
+          rc = 1;
+          goto bye;
+
+        case FR_SUCCESS:
+          break;
+
+        case FR_UNKNOWN:
+        case FR_ERROR:
+        default:
+          mutt_beep(false);
+      }
+
+    notif:
+      if (callback)
+      {
+        buf_mb_wcstombs(cbuf, wdata.state->wbuf, wdata.state->lastchar);
+        callback(data, buf_string(cbuf));
+      }
+
+    } while (!wdata.done);
+
+  bye:
+    FREE(&wdata.tempbuf);
+    completion_data_free(&wdata.cd);
+  } while (rc == 1);
+
+  msgcont_pop_window();
+  window_set_focus(old_focus);
+  mutt_window_free(&win);
+
+  if (rc == 0)
+    buf_fix_dptr(buf);
+  else
+    buf_reset(buf);
+
+  buf_pool_release(&cbuf);
 
   enter_state_free(&es);
 

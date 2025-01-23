@@ -974,6 +974,7 @@ const char *opcodes_get_name       (int op);
   /* L10N: Help screen description for OP_SIDEBAR_TOGGLE_VISIBLE */ \
   /*       Sidebar: <op_sidebar_toggle_visible> */ \
   _fmt(OP_SIDEBAR_TOGGLE_VISIBLE,             N_("make the sidebar (in)visible")) \
+  _fmt(OP_SIDEBAR_START_SEARCH,               N_("dynamic search")) \
 
 #define OPS_SMIME(_fmt) \
   /* L10N: Help screen description for OP_COMPOSE_SMIME_MENU */ \

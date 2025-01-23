@@ -94,6 +94,8 @@ struct SidebarWindowData
   int opn_index;             ///< Current (open) mailbox
   int hil_index;             ///< Highlighted mailbox
   int bot_index;             ///< Last mailbox visible in sidebar
+  int repage;                ///< Force RECALC to recompute the paging
+                             ///  used for the overlays
 
   short previous_sort;       ///< Old `$sidebar_sort`
   enum DivType divider_type; ///< Type of divider to use, e.g. #SB_DIV_ASCII
