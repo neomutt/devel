@@ -673,14 +673,14 @@ msgstr "Autocrypt 資料庫版本太新"
 
 # ckhung 241219
 #: bcache/bcache.c:70
-#, fuzzy, c-format
+#, c-format
 msgid "Cache disabled, $message_cache_dir isn't a directory: %s"
-msgstr "%s 不是一個目錄"
+msgstr "停用 cache， 因為 $message_cache_dir 的值 %s 不是一個目錄"
 
 #: bcache/bcache.c:225
-#, fuzzy, c-format
+#, c-format
 msgid "Message cache isn't a directory: %s"
-msgstr "%s 不是一個目錄"
+msgstr "訊息 cache %s 不是一個目錄"
 
 #: browser/dlg_browser.c:113
 msgid "Chdir"
@@ -688,7 +688,7 @@ msgstr "改變目錄"
 
 #: browser/dlg_browser.c:114
 msgid "Goto"
-msgstr ""
+msgstr "前往"
 
 #: browser/dlg_browser.c:115 browser/dlg_browser.c:129
 msgid "Mask"
@@ -696,21 +696,19 @@ msgstr "遮罩"
 
 #: browser/dlg_browser.c:125
 msgid "List"
-msgstr ""
+msgstr "List"
 
 #: browser/dlg_browser.c:126
-#, fuzzy
 msgid "Subscribe"
-msgstr "訂閱 %s…"
+msgstr "訂閱"
 
 #: browser/dlg_browser.c:127
-#, fuzzy
 msgid "Unsubscribe"
-msgstr "取消訂閱 %s…"
+msgstr "取消訂閱"
 
 #: browser/dlg_browser.c:128 index/dlg_index.c:125
 msgid "Catchup"
-msgstr ""
+msgstr "全部標為已讀"
 
 #: browser/dlg_browser.c:316 browser/functions.c:433 browser/functions.c:767
 #, c-format
@@ -718,14 +716,13 @@ msgid "%s is not a directory"
 msgstr "%s 不是一個目錄"
 
 #: browser/dlg_browser.c:605
-#, fuzzy, c-format
 msgid "Subscribed newsgroups"
-msgstr "訂閱 %s…"
+msgstr "已訂閱的群組"
 
 #: browser/dlg_browser.c:609
 #, c-format
 msgid "Newsgroups on server [%s]"
-msgstr ""
+msgstr "伺服器上的新聞群組 [%s]"
 
 #: browser/dlg_browser.c:617
 #, c-format
@@ -751,18 +748,16 @@ msgid "New file name: "
 msgstr "新檔名："
 
 #: browser/functions.c:188
-#, fuzzy
 msgid "No newsgroups match the mask"
-msgstr "沒有檔案與檔案遮罩相符"
+msgstr "遮罩沒有比對到任何群組"
 
 #: browser/functions.c:214
-#, fuzzy
 msgid "There are no mailboxes"
-msgstr "沒有信件"
+msgstr "沒有信箱"
 
 #: browser/functions.c:260 browser/functions.c:579 browser/functions.c:638
 msgid "No files match the file mask"
-msgstr "沒有檔案與檔案遮罩相符"
+msgstr "遮罩沒有比對到任何檔案"
 
 #: browser/functions.c:275
 msgid "Can't view a directory"
@@ -782,16 +777,15 @@ msgstr "無法掃描目錄"
 
 #: browser/functions.c:453
 msgid "Create is only supported for IMAP mailboxes"
-msgstr "只有 IMAP 郵箱才支援製造功能"
+msgstr "只有 IMAP 郵箱才支援新增功能"
 
 #: browser/functions.c:482
 msgid "Delete is only supported for IMAP mailboxes"
 msgstr "只有 IMAP 郵箱才支援刪除功能"
 
 #: browser/functions.c:493
-#, fuzzy
 msgid "Can't delete currently selected mailbox"
-msgstr "顯示所選擇的檔案"
+msgstr "無法刪除目前已選取的檔案"
 
 #: browser/functions.c:497
 #, c-format
@@ -803,9 +797,8 @@ msgid "Mailbox not deleted"
 msgstr "郵箱未被刪除"
 
 #: browser/functions.c:506
-#, fuzzy
 msgid "Mailbox deletion failed"
-msgstr "郵箱已刪除"
+msgstr "刪除郵箱失敗"
 
 #: browser/functions.c:515
 msgid "Mailbox deleted"
@@ -818,34 +811,30 @@ msgstr "檔案遮罩："
 #: browser/functions.c:843
 #, fuzzy
 msgid "Rename is only supported for IMAP mailboxes"
-msgstr "只有 IMAP 郵箱才支援製造功能"
+msgstr "只有 IMAP 郵箱才支援改名功能"
 
 #. L10N: The highlighted letters must match the "Sort" options
 #: browser/functions.c:876
-#, fuzzy
 msgid "Reverse sort by (d)ate, (a)lpha, si(z)e, d(e)scription, (c)ount, ne(w) count, or do(n)'t sort?"
-msgstr "反向排序 (1)日期, (2)字元, (3)大小 或 (4)不排序?"
+msgstr "反向排序依據： (d)日期， (a)字元， (z)大小， (e)描述， (c)個數， (w)新個數， 或 (n)不排序?"
 
 #. L10N: The highlighted letters must match the "Reverse Sort" options
 #: browser/functions.c:878
-#, fuzzy
 msgid "Sort by (d)ate, (a)lpha, si(z)e, d(e)scription, (c)ount, ne(w) count, or do(n)'t sort?"
-msgstr "依照 (1)日期 (2)字元 (3)大小 來排序，或(4)不排序?"
+msgstr "排序依據： (d)日期， (a)字元， (z)大小， (e)描述， (c)個數， (w)新個數， 或 (n)不排序?"
 
 #. L10N: These must match the highlighted letters from "Sort" and "Reverse Sort"
 #: browser/functions.c:880
 msgid "dazecwn"
-msgstr ""
+msgstr "dazecwn"
 
 #: browser/functions.c:946
-#, fuzzy, c-format
 msgid "Subscribe pattern: "
-msgstr "訂閱 %s…"
+msgstr "訂閱："
 
 #: browser/functions.c:948
-#, fuzzy, c-format
 msgid "Unsubscribe pattern: "
-msgstr "取消訂閱 %s…"
+msgstr "取消訂閱："
 
 #: color/command.c:154 color/command.c:295 color/parse_color.c:288
 #: color/parse_color.c:313 color/parse_color.c:333 commands.c:380
