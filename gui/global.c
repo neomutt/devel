@@ -88,7 +88,7 @@ static int op_shell_escape(int op)
     if (m_cur)
     {
       m_cur->last_checked = 0; // force a check on the next mx_mbox_check() call
-      mutt_mailbox_check(m_cur, MUTT_MAILBOX_CHECK_POSTPONED);
+      mutt_mailbox_check(m_cur, MUTT_MAILBOX_CHECK_POSTPONED|MUTT_MAILBOX_CHECK_STATS);
     }
   }
   return FR_SUCCESS;

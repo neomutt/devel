@@ -183,6 +183,7 @@ enum NotifyMailbox
   NT_MAILBOX_DELETE,     ///< Mailbox is about to be deleted
   NT_MAILBOX_DELETE_ALL, ///< All Mailboxes are about to be deleted
   NT_MAILBOX_CHANGE,     ///< Mailbox has been changed
+  NT_MAILBOX_NEW_MAIL,   ///< Mailbox has new mail
 
   /* These don't really belong here as they are tied to GUI operations.
    * Eventually, they'll be eliminated. */

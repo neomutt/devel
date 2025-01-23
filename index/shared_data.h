@@ -30,6 +30,11 @@ struct MailboxView;
 struct Email;
 struct MuttWindow;
 
+struct MailboxNotify {
+  bool has_new_mail;        ///< Does the mailbox have new mails?
+  bool notified;            ///< Did we already notify?
+};
+
 /**
  * struct IndexSharedData - Data shared between Index, Pager and Sidebar
  */
@@ -44,6 +49,7 @@ struct IndexSharedData
   struct Notify       *notify;         ///< Notifications: #NotifyIndex, #IndexSharedData
   struct SearchState  *search_state;   ///< State of the current search
   bool                 attach_msg;     ///< Are we in "attach message" mode?
+  struct HashTable    *mb_notify;      ///< <mailbox name> -> <MailboxNotify>
 };
 
 /**

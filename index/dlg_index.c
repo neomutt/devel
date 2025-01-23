@@ -84,6 +84,7 @@
 #include "mutt_logging.h"
 #include "mutt_mailbox.h"
 #include "mutt_thread.h"
+#include "muttlib.h"
 #include "mview.h"
 #include "mx.h"
 #include "nntp/adata.h"
@@ -601,6 +602,108 @@ static int index_mailbox_observer(struct NotifyCallback *nc)
 }
 
 /**
+ * index_mailbox_newmail_observer - Notification that a Mailbox has changed - Implements ::observer_t - @ingroup observer_api
+ *
+ * Keeps track of new-mail notifications.
+ */
+static int index_mailbox_newmail_observer(struct NotifyCallback *nc)
+{
+  if (nc->event_type != NT_MAILBOX)
+    return 0;
+  switch (nc->event_subtype)
+  {
+    case NT_MAILBOX_CHANGE:
+    case NT_MAILBOX_INVALID:
+    case NT_MAILBOX_NEW_MAIL:
+      break; // we're only interested in this 3 cases
+    default:
+      return 0;
+  }
+
+  struct IndexSharedData *shared = nc->global_data;
+  struct EventMailbox *ev_m = nc->event_data;
+  struct Mailbox *m = ev_m->mailbox;
+
+  if (!m->notify_user)
+    return 0; // the user doesn't want notifications for this mailbox
+
+  const char *path = mailbox_path(m);
+  struct MailboxNotify *mn = mutt_hash_find(shared->mb_notify, path);
+  if (!mn)
+  {
+    mn = mutt_mem_calloc(1, sizeof(struct MailboxNotify));
+    mutt_hash_insert(shared->mb_notify, path, mn);
+  }
+
+  mn->has_new_mail = nc->event_subtype == NT_MAILBOX_NEW_MAIL;
+
+  /* We only trigger one notification for each mailbox with new mail.
+   * Even if we receive more new mails. So we reset the 'notified' flag when
+   * the mailbox contains no new mail. Then the next new mail will trigger
+   * a notification again. */
+  if (!m->has_new && nc->event_subtype != NT_MAILBOX_NEW_MAIL)
+    mn->notified = false;
+
+  mutt_debug(LL_DEBUG5, "mailbox new-mail done\n");
+  return 0;
+}
+
+static void handle_new_mail(struct IndexPrivateData *priv, struct IndexSharedData *shared)
+{
+  bool notify = false;
+  bool first = true;
+  struct Buffer *message = buf_new("New mail in ");
+  struct Buffer *path = buf_pool_get();
+
+  struct HashWalkState walk = { 0 };
+  struct HashElem *he = NULL;
+  while ((he = mutt_hash_walk(shared->mb_notify, &walk)))
+  {
+    struct MailboxNotify *mn = he->data;
+    if (mn->has_new_mail && !mn->notified)
+    {
+      notify = true;
+
+      // build message
+      buf_strcpy(path, he->key.strkey);
+      buf_pretty_mailbox(path);
+
+      if (!first)
+        buf_addstr(message, ", ");
+
+      buf_addstr(message, buf_string(path));
+      first = false;
+
+      mn->notified = true;
+    }
+  }
+
+  if (!notify)
+    return;
+
+  // show "New mail in ..." message
+  mutt_message("%s", buf_string(message));
+
+  // beep
+  const bool c_beep_new = cs_subset_bool(shared->sub, "beep_new");
+  if (c_beep_new)
+    mutt_beep(true);
+
+  // run new mail command
+  const struct Expando *c_new_mail_command = cs_subset_expando(shared->sub, "new_mail_command");
+  if (c_new_mail_command)
+  {
+    struct Buffer *cmd = buf_pool_get();
+    menu_status_line(cmd, shared, priv->menu, -1, c_new_mail_command);
+    if (mutt_system(buf_string(cmd)) != 0)
+      mutt_error(_("Error running \"%s\""), buf_string(cmd));
+    buf_pool_release(&cmd);
+  }
+
+  buf_free(&message);
+}
+
+/**
  * change_folder_mailbox - Change to a different Mailbox by pointer
  * @param menu      Current Menu
  * @param m         Mailbox
@@ -1109,6 +1212,19 @@ struct Mailbox *dlg_index(struct MuttWindow *dlg, struct Mailbox *m_init)
   struct IndexPrivateData *priv = panel_index->wdata;
   priv->win_index = window_find_child(panel_index, WT_MENU);
 
+  // add new-mail notification listeners to all mailboxes
+  // TODO (ds): needs to happen for newly created mailboxes too
+  // TODO (ds): also need to remove listener when mailbox gets removed
+  struct MailboxList ml = STAILQ_HEAD_INITIALIZER(ml);
+  neomutt_mailboxlist_get_all(&ml, NeoMutt, MUTT_MAILBOX_ANY);
+  struct MailboxNode *np = NULL;
+  STAILQ_FOREACH(np, &ml, entries)
+  {
+    struct Mailbox *m = np->mailbox;
+    notify_observer_add(m->notify, NT_MAILBOX, index_mailbox_newmail_observer, shared);
+  }
+  neomutt_mailboxlist_clear(&ml);
+
   int op = OP_NULL;
 
   if (shared->mailbox && (shared->mailbox->type == MUTT_NNTP))
@@ -1170,10 +1286,17 @@ struct Mailbox *dlg_index(struct MuttWindow *dlg, struct Mailbox *m_init)
       mailbox_gc_run();
 
       shared->mailbox_view->menu = priv->menu;
+
       /* check for new mail in the mailbox.  If nonzero, then something has
        * changed about the file (either we got new mail or the file was
        * modified underneath us.) */
       enum MxStatus check = mx_mbox_check(shared->mailbox);
+
+      if (!shared->attach_msg)
+        // check for new mail in other mailboxes
+        mutt_mailbox_check(shared->mailbox, MUTT_MAILBOX_CHECK_NO_FLAGS);
+
+      handle_new_mail(priv, shared);
 
       if (check == MX_STATUS_ERROR)
       {
@@ -1194,38 +1317,10 @@ struct Mailbox *dlg_index(struct MuttWindow *dlg, struct Mailbox *m_init)
         {
           mutt_error(_("Mailbox was externally modified.  Flags may be wrong."));
         }
-        else if (check == MX_STATUS_NEW_MAIL)
-        {
-          for (size_t i = 0; i < shared->mailbox->msg_count; i++)
-          {
-            const struct Email *e = shared->mailbox->emails[i];
-            if (e && !e->read && !e->old)
-            {
-              mutt_message(_("New mail in this mailbox"));
-              const bool c_beep_new = cs_subset_bool(shared->sub, "beep_new");
-              if (c_beep_new)
-                mutt_beep(true);
-              const struct Expando *c_new_mail_command =
-                  cs_subset_expando(shared->sub, "new_mail_command");
-              if (c_new_mail_command)
-              {
-                struct Buffer *cmd = buf_pool_get();
-                menu_status_line(cmd, shared, NULL, -1, c_new_mail_command);
-                if (mutt_system(buf_string(cmd)) != 0)
-                  mutt_error(_("Error running \"%s\""), buf_string(cmd));
-                buf_pool_release(&cmd);
-              }
-              break;
-            }
-          }
-        }
         else if (check == MX_STATUS_FLAGS)
         {
           mutt_message(_("Mailbox was externally modified"));
         }
-
-        /* avoid the message being overwritten by mailbox */
-        priv->do_mailbox_notify = false;
 
         bool verbose = shared->mailbox->verbose;
         shared->mailbox->verbose = false;
@@ -1238,34 +1333,6 @@ struct Mailbox *dlg_index(struct MuttWindow *dlg, struct Mailbox *m_init)
 
       index_shared_data_set_email(shared, mutt_get_virt_email(shared->mailbox,
                                                               menu_get_index(priv->menu)));
-    }
-
-    if (!shared->attach_msg)
-    {
-      /* check for new mail in the incoming folders */
-      mutt_mailbox_check(shared->mailbox, MUTT_MAILBOX_CHECK_NO_FLAGS);
-      if (priv->do_mailbox_notify)
-      {
-        if (mutt_mailbox_notify(shared->mailbox))
-        {
-          const bool c_beep_new = cs_subset_bool(shared->sub, "beep_new");
-          if (c_beep_new)
-            mutt_beep(true);
-          const struct Expando *c_new_mail_command = cs_subset_expando(shared->sub, "new_mail_command");
-          if (c_new_mail_command)
-          {
-            struct Buffer *cmd = buf_pool_get();
-            menu_status_line(cmd, shared, priv->menu, -1, c_new_mail_command);
-            if (mutt_system(buf_string(cmd)) != 0)
-              mutt_error(_("Error running \"%s\""), buf_string(cmd));
-            buf_pool_release(&cmd);
-          }
-        }
-      }
-      else
-      {
-        priv->do_mailbox_notify = true;
-      }
     }
 
     window_redraw(NULL);

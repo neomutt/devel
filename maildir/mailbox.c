@@ -830,7 +830,7 @@ enum MxStatus maildir_mbox_check_stats(struct Mailbox *m, uint8_t flags)
   if (check_new || check_stats)
     maildir_check_dir(m, "cur", check_new, check_stats);
 
-  return m->msg_new ? MX_STATUS_NEW_MAIL : MX_STATUS_OK;
+  return m->has_new ? MX_STATUS_NEW_MAIL : MX_STATUS_OK;
 }
 
 /**
