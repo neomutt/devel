@@ -109,7 +109,6 @@ enum SpecialChars
 {
   SP_START_EM,
   SP_START_BF,
-  SP_START_TT,
   SP_END_FT,
   SP_NEWLINE,
   SP_NEWPAR,
@@ -339,9 +338,6 @@ static int print_it(enum OutputFormats format, int special, char *str, FILE *fp_
         case SP_START_EM:
           docstat |= D_EM;
           break;
-        case SP_START_TT:
-          docstat |= D_TT;
-          break;
         case SP_NEWLINE:
         {
           if (onl)
@@ -463,13 +459,6 @@ static int print_it(enum OutputFormats format, int special, char *str, FILE *fp_
           fputs("\\fI", fp_out);
           docstat |= D_EM;
           docstat &= ~(D_BF | D_TT);
-          break;
-        }
-        case SP_START_TT:
-        {
-          fputs("\\fC", fp_out);
-          docstat |= D_TT;
-          docstat &= ~(D_BF | D_EM);
           break;
         }
         case SP_NEWLINE:
@@ -616,13 +605,6 @@ static int print_it(enum OutputFormats format, int special, char *str, FILE *fp_
           fputs("<emphasis>", fp_out);
           docstat |= D_EM;
           docstat &= ~(D_BF | D_TT);
-          break;
-        }
-        case SP_START_TT:
-        {
-          fputs("<literal>", fp_out);
-          docstat |= D_TT;
-          docstat &= ~(D_BF | D_EM);
           break;
         }
         case SP_NEWLINE:
@@ -931,12 +913,6 @@ static int handle_docline(enum OutputFormats format, char *l, FILE *fp_out, int 
     {
       docstat = commit_buf(format, buf, &d, fp_out, docstat);
       docstat = print_it(format, SP_START_BF, NULL, fp_out, docstat);
-      s += 2;
-    }
-    else if (strncmp(s, "\\fC", 3) == 0)
-    {
-      docstat = commit_buf(format, buf, &d, fp_out, docstat);
-      docstat = print_it(format, SP_START_TT, NULL, fp_out, docstat);
       s += 2;
     }
     else if (strncmp(s, "\\fP", 3) == 0)
