@@ -60,3 +60,7 @@ compile_commands.*
 
 # gcc -fdump-rtl-expand
 *.expand
+mdir1
+mdir2
+mdir3
+mdir4
