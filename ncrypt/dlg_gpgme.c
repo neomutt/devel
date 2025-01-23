@@ -220,9 +220,9 @@ struct CryptKeyInfo *dlg_gpgme(struct CryptKeyInfo *keys, struct Address *p,
 
   enum MenuType menu_to_use = MENU_GENERIC;
   if (app & APPLICATION_PGP)
-    menu_to_use = MENU_KEY_SELECT_PGP;
+    menu_to_use = MENU_PGP;
   else if (app & APPLICATION_SMIME)
-    menu_to_use = MENU_KEY_SELECT_SMIME;
+    menu_to_use = MENU_SMIME;
 
   struct SimpleDialogWindows sdw = simple_dialog_new(menu_to_use, WT_DLG_GPGME, GpgmeHelp);
 

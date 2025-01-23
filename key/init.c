@@ -184,24 +184,16 @@ void km_init(void)
   create_bindings(AutocryptDefaultBindings, MENU_AUTOCRYPT);
 #endif
   create_bindings(BrowserDefaultBindings, MENU_FOLDER);
-  create_bindings(DialogDefaultBindings, MENU_DIALOG);
   create_bindings(ComposeDefaultBindings, MENU_COMPOSE);
+  create_bindings(DialogDefaultBindings, MENU_DIALOG);
   create_bindings(EditorDefaultBindings, MENU_EDITOR);
   create_bindings(GenericDefaultBindings, MENU_GENERIC);
   create_bindings(IndexDefaultBindings, MENU_INDEX);
   create_bindings(PagerDefaultBindings, MENU_PAGER);
+  create_bindings(PgpDefaultBindings, MENU_PGP);
   create_bindings(PostponedDefaultBindings, MENU_POSTPONED);
   create_bindings(QueryDefaultBindings, MENU_QUERY);
-
-  if (WithCrypto & APPLICATION_PGP)
-    create_bindings(PgpDefaultBindings, MENU_PGP);
-  if (WithCrypto & APPLICATION_SMIME)
-    create_bindings(SmimeDefaultBindings, MENU_SMIME);
-
-#ifdef CRYPT_BACKEND_GPGME
-  create_bindings(PgpDefaultBindings, MENU_KEY_SELECT_PGP);
-  create_bindings(SmimeDefaultBindings, MENU_KEY_SELECT_SMIME);
-#endif
+  create_bindings(SmimeDefaultBindings, MENU_SMIME);
 }
 
 /**

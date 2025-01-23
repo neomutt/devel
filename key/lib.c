@@ -520,20 +520,16 @@ const struct MenuFuncOp *km_get_table(enum MenuType mtype)
       return OpGeneric;
     case MENU_INDEX:
       return OpIndex;
-#ifdef CRYPT_BACKEND_GPGME
-    case MENU_KEY_SELECT_PGP:
-      return OpPgp;
-    case MENU_KEY_SELECT_SMIME:
-      return OpSmime;
-#endif
     case MENU_PAGER:
       return OpPager;
     case MENU_PGP:
-      return (WithCrypto & APPLICATION_PGP) ? OpPgp : NULL;
+      return OpPgp;
     case MENU_POSTPONED:
       return OpPostponed;
     case MENU_QUERY:
       return OpQuery;
+    case MENU_SMIME:
+      return OpSmime;
     default:
       return NULL;
   }
