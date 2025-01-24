@@ -744,6 +744,8 @@ void mutt_pipe_attachment_list(struct AttachCtx *actx, FILE *fp, bool tag,
     goto cleanup;
 
   buf_expand_path(buf);
+  if (b->filename)
+    buf_add_printf(buf, " \"%s\"", b->filename);
 
   const bool c_attach_split = cs_subset_bool(NeoMutt->sub, "attach_split");
   if (!filter && !c_attach_split)
