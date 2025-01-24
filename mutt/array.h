@@ -251,6 +251,52 @@
        ARRAY_FOREACH_IDX_##elem++)
 
 /**
+ * ARRAY_FOREACH_REVERSE - Iterate backwards over all elements of the array
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ */
+#define ARRAY_FOREACH_REVERSE(elem, head)                                      \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (head)->size, 0)
+
+/**
+ * ARRAY_FOREACH_REVERSE_FROM - Iterate from an index to the beginning
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param from Starting index (inclusive)
+ *
+ * @note The from index must be between 0 and ARRAY_SIZE(head)
+ */
+#define ARRAY_FOREACH_REVERSE_FROM(elem, head, from)                           \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (from), 0)
+
+/**
+ * ARRAY_FOREACH_REVERSE_TO - Iterate from the end to an index
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param to   Terminating index (exclusive)
+ *
+ * @note The to index must be between 0 and ARRAY_SIZE(head)
+ */
+#define ARRAY_FOREACH_REVERSE_TO(elem, head, to)                               \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (head)->size, (to))
+
+/**
+ * ARRAY_FOREACH_REVERSE_FROM_TO - Iterate between two indexes
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param from Starting index (inclusive)
+ * @param to   Terminating index (exclusive)
+ *
+ * @note The from and to indexes must be between 0 and ARRAY_SIZE(head);
+ *       the from index must not be smaller than to index.
+ */
+#define ARRAY_FOREACH_REVERSE_FROM_TO(elem, head, from, to)                    \
+  for (size_t ARRAY_FOREACH_IDX_##elem = (from) - 1;                           \
+       (ARRAY_FOREACH_IDX_##elem >= (to)) &&                                   \
+       (elem = ARRAY_GET((head), ARRAY_FOREACH_IDX_##elem));                   \
+       ARRAY_FOREACH_IDX_##elem--)
+
+/**
  * ARRAY_IDX - Return the index of an element of the array
  * @param head Pointer to a struct defined using ARRAY_HEAD()
  * @param elem Pointer to an element of the array

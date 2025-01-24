@@ -329,6 +329,80 @@ void test_mutt_array_api(void)
     }
   }
 
+  /* Reverse Iteration */
+  {
+    struct Dummy *elem = NULL;
+    size_t count = ARRAY_SIZE(&d);
+    size_t i = count - 1;
+    ARRAY_FOREACH_REVERSE(elem, &d)
+    {
+      if (!TEST_CHECK(elem == ARRAY_GET(&d, i)))
+      {
+        TEST_MSG("Expected: %lp", ARRAY_GET(&d, i));
+        TEST_MSG("Actual  : %lp", elem);
+      }
+      i--;
+    }
+  }
+
+  /* Partial reverse iteration - from */
+  {
+    struct Dummy *elem = NULL;
+    size_t from = 4;
+    ARRAY_FOREACH_REVERSE_FROM(elem, &d, from)
+    {
+      if (!TEST_CHECK(elem == ARRAY_GET(&d, from - 1)))
+      {
+        TEST_MSG("Expected: %lp", ARRAY_GET(&d, from - 1));
+        TEST_MSG("Actual  : %lp", elem);
+      }
+      from--;
+    }
+  }
+
+  /* Partial reverse iteration - to */
+  {
+    struct Dummy *elem = NULL;
+    size_t count = ARRAY_SIZE(&d);
+    size_t i = count - 1;
+    size_t to = 10;
+    ARRAY_FOREACH_REVERSE_TO(elem, &d, to)
+    {
+      if (!TEST_CHECK(elem == ARRAY_GET(&d, i)))
+      {
+        TEST_MSG("Expected: %lp", ARRAY_GET(&d, i));
+        TEST_MSG("Actual  : %lp", elem);
+      }
+      i--;
+    }
+    if (!TEST_CHECK(i == (to - 1)))
+    {
+      TEST_MSG("Expected: %zu", to - 1);
+      TEST_MSG("Actual  : %zu", i);
+    }
+  }
+
+  /* Partial reverse iteration - from+to */
+  {
+    struct Dummy *elem = NULL;
+    size_t from = 10;
+    size_t to = 4;
+    ARRAY_FOREACH_REVERSE_FROM_TO(elem, &d, from, to)
+    {
+      if (!TEST_CHECK(elem == ARRAY_GET(&d, from - 1)))
+      {
+        TEST_MSG("Expected: %lp", ARRAY_GET(&d, from - 1));
+        TEST_MSG("Actual  : %lp", elem);
+      }
+      from--;
+    }
+    if (!TEST_CHECK(from == to))
+    {
+      TEST_MSG("Expected: %zu", to);
+      TEST_MSG("Actual  : %zu", from);
+    }
+  }
+
   /* Sorting */
   {
     struct DummyArray empty = ARRAY_HEAD_INITIALIZER;
