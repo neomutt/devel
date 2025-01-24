@@ -47,8 +47,8 @@
 #define ARRAY_HEAD(name, type)                                                 \
   struct name                                                                  \
   {                                                                            \
-    size_t size;     /**< Number of items in the array */                      \
-    size_t capacity; /**< Maximum number of items in the array */              \
+    int size;        /**< Number of items in the array */                      \
+    int capacity;    /**< Maximum number of items in the array */              \
     type *entries;   /**< A C array of the items */                            \
   }
 
@@ -107,7 +107,7 @@
  *       explicitly set. In that case, the memory returned is all zeroes.
  */
 #define ARRAY_GET(head, idx)                                                   \
-  ((head)->size > (idx) ? &(head)->entries[(idx)] : NULL)
+  ((idx >= 0) && ((head)->size > (idx)) ? &(head)->entries[(idx)] : NULL)
 
 /**
  * ARRAY_SET - Set an element in the array
@@ -245,7 +245,7 @@
  *       the from index must not be bigger than to index.
  */
 #define ARRAY_FOREACH_FROM_TO(elem, head, from, to)                            \
-  for (size_t ARRAY_FOREACH_IDX_##elem = (from);                               \
+  for (int ARRAY_FOREACH_IDX_##elem = (from);                                  \
        (ARRAY_FOREACH_IDX_##elem < (to)) &&                                    \
        (elem = ARRAY_GET((head), ARRAY_FOREACH_IDX_##elem));                   \
        ARRAY_FOREACH_IDX_##elem++)
@@ -291,7 +291,7 @@
  *       the from index must not be smaller than to index.
  */
 #define ARRAY_FOREACH_REVERSE_FROM_TO(elem, head, from, to)                    \
-  for (size_t ARRAY_FOREACH_IDX_##elem = (from) - 1;                           \
+  for (int ARRAY_FOREACH_IDX_##elem = (from) - 1;                              \
        (ARRAY_FOREACH_IDX_##elem >= (to)) &&                                   \
        (elem = ARRAY_GET((head), ARRAY_FOREACH_IDX_##elem));                   \
        ARRAY_FOREACH_IDX_##elem--)
