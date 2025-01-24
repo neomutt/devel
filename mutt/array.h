@@ -47,8 +47,8 @@
 #define ARRAY_HEAD(name, type)                                                 \
   struct name                                                                  \
   {                                                                            \
-    size_t size;     /**< Number of items in the array */                      \
-    size_t capacity; /**< Maximum number of items in the array */              \
+    int size;        /**< Number of items in the array */                      \
+    int capacity;    /**< Maximum number of items in the array */              \
     type *entries;   /**< A C array of the items */                            \
   }
 
@@ -107,7 +107,7 @@
  *       explicitly set. In that case, the memory returned is all zeroes.
  */
 #define ARRAY_GET(head, idx)                                                   \
-  ((head)->size > (idx) ? &(head)->entries[(idx)] : NULL)
+  ((idx >= 0) && ((head)->size > (idx)) ? &(head)->entries[(idx)] : NULL)
 
 /**
  * ARRAY_SET - Set an element in the array
@@ -245,10 +245,56 @@
  *       the from index must not be bigger than to index.
  */
 #define ARRAY_FOREACH_FROM_TO(elem, head, from, to)                            \
-  for (size_t ARRAY_FOREACH_IDX_##elem = (from);                               \
+  for (int ARRAY_FOREACH_IDX_##elem = (from);                                  \
        (ARRAY_FOREACH_IDX_##elem < (to)) &&                                    \
        (elem = ARRAY_GET((head), ARRAY_FOREACH_IDX_##elem));                   \
        ARRAY_FOREACH_IDX_##elem++)
+
+/**
+ * ARRAY_FOREACH_REVERSE - Iterate backwards over all elements of the array
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ */
+#define ARRAY_FOREACH_REVERSE(elem, head)                                      \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (head)->size, 0)
+
+/**
+ * ARRAY_FOREACH_REVERSE_FROM - Iterate from an index to the beginning
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param from Starting index (inclusive)
+ *
+ * @note The from index must be between 0 and ARRAY_SIZE(head)
+ */
+#define ARRAY_FOREACH_REVERSE_FROM(elem, head, from)                           \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (from), 0)
+
+/**
+ * ARRAY_FOREACH_REVERSE_TO - Iterate from the end to an index
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param to   Terminating index (exclusive)
+ *
+ * @note The to index must be between 0 and ARRAY_SIZE(head)
+ */
+#define ARRAY_FOREACH_REVERSE_TO(elem, head, to)                               \
+  ARRAY_FOREACH_REVERSE_FROM_TO(elem, (head), (head)->size, (to))
+
+/**
+ * ARRAY_FOREACH_REVERSE_FROM_TO - Iterate between two indexes
+ * @param elem Variable to be used as pointer to the element at each iteration
+ * @param head Pointer to a struct defined using ARRAY_HEAD()
+ * @param from Starting index (inclusive)
+ * @param to   Terminating index (exclusive)
+ *
+ * @note The from and to indexes must be between 0 and ARRAY_SIZE(head);
+ *       the from index must not be smaller than to index.
+ */
+#define ARRAY_FOREACH_REVERSE_FROM_TO(elem, head, from, to)                    \
+  for (int ARRAY_FOREACH_IDX_##elem = (from) - 1;                              \
+       (ARRAY_FOREACH_IDX_##elem >= (to)) &&                                   \
+       (elem = ARRAY_GET((head), ARRAY_FOREACH_IDX_##elem));                   \
+       ARRAY_FOREACH_IDX_##elem--)
 
 /**
  * ARRAY_IDX - Return the index of an element of the array

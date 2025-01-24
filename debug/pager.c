@@ -40,7 +40,7 @@ void dump_text_syntax_array(struct TextSyntaxArray *tsa)
   if (!tsa || ARRAY_EMPTY(tsa))
     return;
 
-  mutt_debug(LL_DEBUG1, "\tsyntax: %ld\n", ARRAY_SIZE(tsa));
+  mutt_debug(LL_DEBUG1, "\tsyntax: %d\n", ARRAY_SIZE(tsa));
 
   struct TextSyntax *ts = NULL;
   ARRAY_FOREACH(ts, tsa)
