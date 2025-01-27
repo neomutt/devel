@@ -251,11 +251,54 @@ struct ExpandoNode *parse_short_name(const char *str, const struct ExpandoDefini
     return NULL;
 
   const struct ExpandoDefinition *def = defs;
-  for (; def && def->short_name; def++)
+  for (; def && (def->short_name || def->long_name); def++)
   {
     size_t len = mutt_str_len(def->short_name);
 
     if (mutt_strn_equal(def->short_name, str, len))
+    {
+      if (def->parse && !(flags & EP_NO_CUSTOM_PARSE))
+      {
+        return def->parse(str, fmt, def->did, def->uid, flags, parsed_until, err);
+      }
+      else
+      {
+        *parsed_until = str + len;
+        return node_expando_new(fmt, def->did, def->uid);
+      }
+    }
+  }
+
+  return NULL;
+}
+
+/**
+ * parse_long_name - Create an expando by its long name
+ * @param[in]  str          String to parse
+ * @param[in]  defs         Expando definitions
+ * @param[in]  flags        Flag for conditional expandos
+ * @param[in]  fmt          Formatting info
+ * @param[out] parsed_until First character after parsed string
+ * @param[out] err          Buffer for errors
+ * @retval ptr New ExpandoNode
+ */
+struct ExpandoNode *parse_long_name(const char *str, const struct ExpandoDefinition *defs,
+                                     ExpandoParserFlags flags,
+                                     struct ExpandoFormat *fmt, const char **parsed_until,
+                                     struct ExpandoParseError *err)
+{
+  if (!str || !defs)
+    return NULL;
+
+  const struct ExpandoDefinition *def = defs;
+  for (; def && (def->short_name || def->long_name); def++)
+  {
+    if (!def->long_name)
+      continue;
+
+    size_t len = mutt_str_len(def->long_name);
+
+    if (mutt_strn_equal(def->long_name, str, len))
     {
       if (def->parse && !(flags & EP_NO_CUSTOM_PARSE))
       {
@@ -304,6 +347,53 @@ struct ExpandoNode *node_expando_parse(const char *str, const struct ExpandoDefi
   err->position = *parsed_until;
   // L10N: e.g. "Unknown expando: %Q"
   snprintf(err->message, sizeof(err->message), _("Unknown expando: %%%.1s"), *parsed_until);
+  FREE(&fmt);
+  return NULL;
+}
+
+/**
+ * node_expando_parse_name - Parse an Expando format string
+ * @param[in]  str          String to parse
+ * @param[in]  defs         Expando definitions
+ * @param[in]  flags        Flag for conditional expandos
+ * @param[out] parsed_until First character after parsed string
+ * @param[out] err          Buffer for errors
+ * @retval ptr New ExpandoNode
+ */
+struct ExpandoNode *node_expando_parse_name(const char *str,
+                                            const struct ExpandoDefinition *defs,
+                                            ExpandoParserFlags flags, const char **parsed_until,
+                                            struct ExpandoParseError *err)
+{
+  ASSERT(str[0] == '%');
+  str++;
+
+  struct ExpandoFormat *fmt = parse_format(str, parsed_until, err);
+  if (err->position)
+    goto fail;
+
+  str = *parsed_until;
+
+  if (str[0] != '{')
+    goto fail;
+
+  str++;
+
+  struct ExpandoNode *node = parse_long_name(str, defs, flags, fmt, parsed_until, err);
+  fmt = NULL; // owned by the node, now
+
+  if (!node)
+    goto fail;
+
+  if ((*parsed_until)[0] == '}')
+  {
+    (*parsed_until)++;
+    return node;
+  }
+
+  node_free(&node);
+
+fail:
   FREE(&fmt);
   return NULL;
 }
