@@ -58,6 +58,8 @@
 #include "menu/lib.h"
 #include "pager/lib.h"
 #include "parse/lib.h"
+#include "pfile/lib.h"
+#include "spager/lib.h"
 #include "store/lib.h"
 #include "alternates.h"
 #include "globals.h"
@@ -70,6 +72,9 @@
 #endif
 #ifdef ENABLE_NLS
 #include <libintl.h>
+#endif
+#ifdef USE_DEBUG_COLOR
+#include "debug/lib.h"
 #endif
 
 /// LIFO designed to contain the list of config files that have been sourced and
@@ -887,36 +892,102 @@ enum CommandResult parse_my_hdr(struct Buffer *buf, struct Buffer *s,
  */
 enum CommandResult set_dump(enum GetElemListFlags flags, struct Buffer *err)
 {
-  struct Buffer *tempfile = buf_pool_get();
-  buf_mktemp(tempfile);
+  struct PagedFile *pf = paged_file_new(NULL);
 
-  FILE *fp_out = mutt_file_fopen(buf_string(tempfile), "w");
-  if (!fp_out)
+  struct Buffer *value = buf_pool_get();
+  struct Buffer *tmp = buf_pool_get();
+
+  struct HashElemArray hea = get_elem_list(NeoMutt->sub->cs, flags);
+  struct HashElem **hep = NULL;
+  struct HashElem *he = NULL;
+  const struct ConfigDef *cdef = NULL;
+  int type;
+
+  // measure the width of the config names
+  int width = 0;
+  ARRAY_FOREACH(hep, &hea)
   {
-    // L10N: '%s' is the file name of the temporary file
-    buf_printf(err, _("Could not create temporary file %s"), buf_string(tempfile));
-    buf_pool_release(&tempfile);
-    return MUTT_CMD_ERROR;
+    he = *hep;
+    if (he->type & D_INTERNAL_DEPRECATED)
+      continue;
+    type = CONFIG_TYPE(he->type);
+    if (type == DT_SYNONYM)
+      continue;
+
+    cdef = he->data;
+    width = MAX(width, mutt_str_len(cdef->name));
   }
 
-  struct ConfigSet *cs = NeoMutt->sub->cs;
-  struct HashElemArray hea = get_elem_list(cs, flags);
-  dump_config(cs, &hea, CS_DUMP_NO_FLAGS, fp_out);
+  int len;
+  ARRAY_FOREACH(hep, &hea)
+  {
+    he = *hep;
+    if (he->type & D_INTERNAL_DEPRECATED)
+      continue;
+    type = CONFIG_TYPE(he->type);
+    if (type == DT_SYNONYM)
+      continue;
+
+    cdef = he->data;
+
+    struct PagedLine *pl = paged_file_new_line(pf);
+
+    // set config =
+    paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, "set");
+    paged_line_add_text(pl, " ");
+    len = paged_line_add_colored_text(pl, MT_COLOR_IDENTIFIER, cdef->name);
+    buf_printf(tmp, "%*s", width - len + 1, "");
+    paged_line_add_text(pl, buf_string(tmp));
+    paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, "=");
+    paged_line_add_text(pl, " ");
+
+    buf_reset(value);
+    cs_subset_he_string_get(NeoMutt->sub, he, value);
+
+    if (((type == DT_PATH) || IS_MAILBOX(he->type)) && (value->data[0] == '/'))
+      mutt_pretty_mailbox(value->data, value->dsize);
+
+    // Quote/escape the values of config options NOT of these types
+    if ((type != DT_BOOL) && (type != DT_NUMBER) && (type != DT_LONG) &&
+        (type != DT_QUAD) && (type != DT_ENUM) && (type != DT_SORT))
+    {
+      buf_reset(tmp);
+      pretty_var(value->data, tmp);
+      buf_strcpy(value, tmp->data);
+    }
+
+    int cid;
+    if ((type == DT_BOOL) || (type == DT_ENUM) || (type == DT_QUAD) || (type == DT_SORT))
+      cid = MT_COLOR_ENUM;
+    else if ((type == DT_LONG) || (type == DT_NUMBER))
+      cid = MT_COLOR_NUMBER;
+    else
+      cid = MT_COLOR_STRING;
+
+    paged_line_add_colored_text(pl, cid, buf_string(value));
+    paged_line_add_newline(pl);
+  }
   ARRAY_FREE(&hea);
 
-  mutt_file_fclose(&fp_out);
+  // Apply striping
+  struct PagedLine *pl = NULL;
+  ARRAY_FOREACH(pl, &pf->lines)
+  {
+    if ((ARRAY_FOREACH_IDX_pl % 2) == 0)
+      pl->cid = MT_COLOR_STRIPE_ODD;
+    else
+      pl->cid = MT_COLOR_STRIPE_EVEN;
+  }
 
-  struct PagerData pdata = { 0 };
-  struct PagerView pview = { &pdata };
+#ifdef USE_DEBUG_SPAGER
+  dump_spager(pf);
+#endif
+  const char *banner = (flags == GEL_ALL_CONFIG) ? "set all" : "set";
+  dlg_spager(pf, banner, NeoMutt->sub);
 
-  pdata.fname = buf_string(tempfile);
-
-  pview.banner = "set";
-  pview.flags = MUTT_PAGER_NO_FLAGS;
-  pview.mode = PAGER_MODE_OTHER;
-
-  mutt_do_pager(&pview, NULL);
-  buf_pool_release(&tempfile);
+  buf_pool_release(&value);
+  buf_pool_release(&tmp);
+  paged_file_free(&pf);
 
   return MUTT_CMD_SUCCESS;
 }
