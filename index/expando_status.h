@@ -45,6 +45,7 @@ enum StatusChars
   STATUS_CHAR_NEED_RESYNC,        ///< Mailbox has been changed and needs to be resynchronized
   STATUS_CHAR_READ_ONLY,          ///< Mailbox is read-only
   STATUS_CHAR_ATTACH,             ///< Mailbox opened in attach-message mode
+  STATUS_CHAR_MAX,
 };
 
 #endif /* MUTT_INDEX_EXPANDO_STATUS_H */

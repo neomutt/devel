@@ -45,6 +45,7 @@ enum FlagChars
   FLAG_CHAR_NEW_THREAD,       ///< Character denoting a thread containing at least one new email
   FLAG_CHAR_SEMPTY,           ///< Character denoting a read email, $index_format %S expando
   FLAG_CHAR_ZEMPTY,           ///< Character denoting a read email, $index_format %Z expando
+  FLAG_CHAR_MAX,
 };
 
 /**
@@ -57,6 +58,7 @@ enum CryptChars
   FLAG_CHAR_CRYPT_SIGNED,         ///< Character denoting a message is signed
   FLAG_CHAR_CRYPT_CONTAINS_KEY,   ///< Character denoting a message contains a PGP key
   FLAG_CHAR_CRYPT_NO_CRYPTO,      ///< Character denoting a message has no cryptography information
+  FLAG_CHAR_CRYPT_MAX,
 };
 
 /**
@@ -71,6 +73,7 @@ enum ToChars
   FLAG_CHAR_TO_ORIGINATOR,        ///< Character denoting that the user is originator
   FLAG_CHAR_TO_SUBSCRIBED_LIST,   ///< Character denoting that the message is sent to a subscribed mailing list
   FLAG_CHAR_TO_REPLY_TO,          ///< Character denoting that the user is in the Reply-To list
+  FLAG_CHAR_TO_MAX,
 };
 
 #endif /* MUTT_INDEX_EXPANDO_INDEX_H */

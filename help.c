@@ -34,15 +34,16 @@
 #include "config.h"
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
 #include "mutt/lib.h"
 #include "config/lib.h"
 #include "core/lib.h"
 #include "gui/lib.h"
+#include "color/lib.h"
 #include "index/lib.h"
 #include "key/lib.h"
 #include "menu/lib.h"
-#include "pager/lib.h"
+#include "pfile/lib.h"
+#include "spager/lib.h"
 #include "protos.h"
 
 /**
@@ -93,53 +94,117 @@ static const char *ToCharsDesc[] = {
 };
 
 /**
+ * StatusCharsDesc - Descriptions of the $status_chars flags
+ *
+ * This must be in the same order as #StatusChars
+ */
+static const char *StatusCharsDesc[] = {
+  N_("mailbox is unchanged"),
+  N_("message needs resync"),
+  N_("message is read-only"),
+  N_("message is in atttach-message mode"),
+};
+
+/**
+ * add_heading - Add a heading
+ * @param pf      Paged File to write to
+ * @param heading Header text
+ */
+static void add_heading(struct PagedFile *pf, const char *heading)
+{
+  struct PagedLine *pl = NULL;
+
+  pl = paged_file_new_line(pf);
+  paged_line_add_colored_text(pl, MT_COLOR_HEADING, heading);
+  paged_line_add_text(pl, "\n");
+
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+}
+
+/**
+ * add_chars - Add a table of flag characters
+ * @param pf        Paged File to write to
+ * @param config    Config variable
+ * @param num_flags Number of flags
+ * @param desc      Flag descriptions
+ */
+static void add_chars(struct PagedFile *pf, const char *config, int num_flags,
+                      const char **desc)
+{
+  struct Buffer *buf = buf_pool_get();
+  struct PagedLine *pl = paged_file_new_line(pf);
+
+  const struct MbTable *mb_table = cs_subset_mbtable(NeoMutt->sub, config);
+  paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, "set");
+  paged_line_add_text(pl, " ");
+  paged_line_add_colored_text(pl, MT_COLOR_IDENTIFIER, config);
+  paged_line_add_text(pl, " ");
+  paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, "=");
+  paged_line_add_text(pl, " ");
+
+  buf_reset(buf);
+  cs_subset_str_string_get(NeoMutt->sub, config, buf);
+  paged_line_add_colored_text(pl, MT_COLOR_STRING, "\"");
+  paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
+  paged_line_add_colored_text(pl, MT_COLOR_STRING, "\"");
+  paged_line_add_text(pl, "\n");
+
+  const char *flag = NULL;
+  int cols;
+  for (int i = 0; i < num_flags; i++)
+  {
+    flag = mbtable_get_nth_wchar(mb_table, i);
+    cols = mutt_strwidth(flag);
+    pl = paged_file_new_line(pf);
+
+    paged_line_add_text(pl, "    ");
+    buf_printf(buf, "'%s'", flag);
+    paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
+
+    buf_printf(buf, "%*s", 4 - cols, "");
+    paged_line_add_text(pl, buf_string(buf));
+
+    paged_line_add_colored_text(pl, MT_COLOR_COMMENT, _(desc[i]));
+    paged_line_add_text(pl, "\n");
+  }
+
+  buf_pool_release(&buf);
+}
+
+/**
  * dump_message_flags - Write out all the message flags
  * @param menu Menu type
- * @param fp   File to write to
+ * @param pf   Paged File to write to
  *
  * Display a quick reminder of all the flags in the config options:
  * - $crypt_chars
  * - $flag_chars
  * - $to_chars
  */
-static void dump_message_flags(enum MenuType menu, FILE *fp)
+static void dump_message_flags(enum MenuType menu, struct PagedFile *pf)
 {
   if (menu != MENU_INDEX)
     return;
 
-  const char *flag = NULL;
-  int cols;
+  struct PagedLine *pl = NULL;
 
-  fprintf(fp, "\n%s\n\n", _("Message flags:"));
+  add_heading(pf, _("Message flags:"));
 
-  const struct MbTable *c_flag_chars = cs_subset_mbtable(NeoMutt->sub, "flag_chars");
-  fprintf(fp, "$flag_chars:\n");
-  for (int i = FLAG_CHAR_TAGGED; i <= FLAG_CHAR_ZEMPTY; i++)
-  {
-    flag = mbtable_get_nth_wchar(c_flag_chars, i);
-    cols = mutt_strwidth(flag);
-    fprintf(fp, "    '%s'%*s  %s\n", flag, 4 - cols, "", _(FlagCharsDesc[i]));
-  }
+  add_chars(pf, "flag_chars", FLAG_CHAR_MAX, FlagCharsDesc);
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
-  const struct MbTable *c_crypt_chars = cs_subset_mbtable(NeoMutt->sub, "crypt_chars");
-  fprintf(fp, "\n$crypt_chars:\n");
-  for (int i = FLAG_CHAR_CRYPT_GOOD_SIGN; i <= FLAG_CHAR_CRYPT_NO_CRYPTO; i++)
-  {
-    flag = mbtable_get_nth_wchar(c_crypt_chars, i);
-    cols = mutt_strwidth(flag);
-    fprintf(fp, "    '%s'%*s  %s\n", flag, 4 - cols, "", _(CryptCharsDesc[i]));
-  }
+  add_chars(pf, "crypt_chars", FLAG_CHAR_CRYPT_MAX, CryptCharsDesc);
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
-  const struct MbTable *c_to_chars = cs_subset_mbtable(NeoMutt->sub, "to_chars");
-  fprintf(fp, "\n$to_chars:\n");
-  for (int i = FLAG_CHAR_TO_NOT_IN_THE_LIST; i <= FLAG_CHAR_TO_REPLY_TO; i++)
-  {
-    flag = mbtable_get_nth_wchar(c_to_chars, i);
-    cols = mutt_strwidth(flag);
-    fprintf(fp, "    '%s'%*s  %s\n", flag, 4 - cols, "", _(ToCharsDesc[i]));
-  }
+  add_chars(pf, "to_chars", FLAG_CHAR_TO_MAX, ToCharsDesc);
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
-  fprintf(fp, "\n");
+  add_heading(pf, _("Status flags:"));
+  add_chars(pf, "status_chars", STATUS_CHAR_MAX, StatusCharsDesc);
 }
 
 /**
@@ -152,8 +217,9 @@ void mutt_help(enum MenuType menu)
   struct BindingInfoArray bia_macro = ARRAY_HEAD_INITIALIZER;
   struct BindingInfoArray bia_gen = ARRAY_HEAD_INITIALIZER;
   struct BindingInfoArray bia_unbound = ARRAY_HEAD_INITIALIZER;
-  struct Buffer *banner = NULL;
-  struct Buffer *tempfile = NULL;
+  struct Buffer *buf = NULL;
+  struct PagedFile *pf = NULL;
+  struct PagedLine *pl = NULL;
 
   // ---------------------------------------------------------------------------
   // Gather the data
@@ -191,88 +257,165 @@ void mutt_help(enum MenuType menu)
   // ---------------------------------------------------------------------------
   // Save the data to a file
 
-  tempfile = buf_pool_get();
-  buf_mktemp(tempfile);
-  FILE *fp = mutt_file_fopen(buf_string(tempfile), "w");
-  if (!fp)
-  {
-    mutt_perror("%s", buf_string(tempfile));
+  buf = buf_pool_get();
+  pf = paged_file_new(NULL);
+  if (!pf)
     goto cleanup;
-  }
 
   const char *menu_name = mutt_map_get_name(menu, MenuNames);
   struct BindingInfo *bi = NULL;
 
-  fprintf(fp, "%s bindings\n", menu_name);
-  fprintf(fp, "\n");
+  // heading + blank line
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%s bindings\n", menu_name);
+  paged_line_add_colored_text(pl, MT_COLOR_HEADING, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
+  int len0;
+  int len1;
   ARRAY_FOREACH(bi, &bia_bind)
   {
-    // key text description
-    fprintf(fp, "%*s  %*s  %s\n", -wb0, bi->a[0], -wb1, bi->a[1], bi->a[2]);
+    pl = paged_file_new_line(pf);
+
+    // keybinding
+    len0 = paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, bi->a[0]);
+    buf_printf(buf, "%*s", wb0 - len0, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, "  ");
+
+    // function
+    len1 = paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, bi->a[1]);
+    buf_printf(buf, "%*s", wb1 - len1, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, "  ");
+
+    // function description
+    paged_line_add_colored_text(pl, MT_COLOR_COMMENT, bi->a[2]);
+    paged_line_add_newline(pl);
   }
-  fprintf(fp, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
   if (need_generic)
   {
-    fprintf(fp, "%s bindings\n", "generic");
-    fprintf(fp, "\n");
+    // heading + blank line
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "%s bindings\n", "generic");
+    paged_line_add_colored_text(pl, MT_COLOR_HEADING, buf_string(buf));
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
+
     ARRAY_FOREACH(bi, &bia_gen)
     {
-      // key function description
-      fprintf(fp, "%*s  %*s  %s\n", -wb0, bi->a[0], -wb1, bi->a[1], bi->a[2]);
+      pl = paged_file_new_line(pf);
+
+      // keybinding
+      len0 = paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, bi->a[0]);
+      buf_printf(buf, "%*s", wb0 - len0, "");
+      paged_line_add_text(pl, buf_string(buf));
+      paged_line_add_text(pl, "  ");
+
+      // function
+      len1 = paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, bi->a[1]);
+      buf_printf(buf, "%*s", wb1 - len1, "");
+      paged_line_add_text(pl, buf_string(buf));
+      paged_line_add_text(pl, "  ");
+
+      // function description
+      paged_line_add_colored_text(pl, MT_COLOR_COMMENT, bi->a[2]);
+      paged_line_add_newline(pl);
     }
-    fprintf(fp, "\n");
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
   }
 
-  fprintf(fp, "macros\n");
-  fprintf(fp, "\n");
+  // heading + blank line
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "macros\n");
+  paged_line_add_colored_text(pl, MT_COLOR_HEADING, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
   ARRAY_FOREACH(bi, &bia_macro)
   {
-    if (bi->a[2]) // description
+    pl = paged_file_new_line(pf);
+
+    // keybinding
+    len0 = paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, bi->a[0]);
+    buf_printf(buf, "%*s", wm0 - len0, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, " ");
+
+    // description
+    if (bi->a[2])
     {
-      // key description, macro-text, blank line
-      fprintf(fp, "%*s  %s\n", -wm0, bi->a[0], bi->a[2]);
-      fprintf(fp, "%s\n", bi->a[1]);
-      fprintf(fp, "\n");
+      buf_printf(buf, "\"%s\"\n", bi->a[2]);
+      paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
+      pl = paged_file_new_line(pf);
     }
-    else
+
+    // macro text
+    buf_printf(buf, "\"%s\"\n", bi->a[1]);
+    paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
+
+    // blank line after two-line macro display
+    if (bi->a[2])
     {
-      // key macro-text
-      fprintf(fp, "%*s  %s\n", -wm0, bi->a[0], bi->a[1]);
+      pl = paged_file_new_line(pf);
+      paged_line_add_newline(pl);
     }
   }
-  fprintf(fp, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
-  fprintf(fp, "unbound functions\n");
-  fprintf(fp, "\n");
+  // heading + blank line
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "unbound functions\n");
+  paged_line_add_colored_text(pl, MT_COLOR_HEADING, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
   ARRAY_FOREACH(bi, &bia_unbound)
   {
+    pl = paged_file_new_line(pf);
+
+    // function
+    len1 = paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, bi->a[1]);
+    buf_printf(buf, "%*s", wu1 - len1, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, "  ");
+
     // function description
-    fprintf(fp, "%*s  %s\n", -wu1, bi->a[1], bi->a[2]);
+    paged_line_add_colored_text(pl, MT_COLOR_COMMENT, bi->a[2]);
+    paged_line_add_newline(pl);
   }
 
-  dump_message_flags(menu, fp);
-  mutt_file_fclose(&fp);
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
+  dump_message_flags(menu, pf);
+
+  // Apply striping
+  ARRAY_FOREACH(pl, &pf->lines)
+  {
+    if ((ARRAY_FOREACH_IDX_pl % 2) == 0)
+      pl->cid = MT_COLOR_STRIPE_ODD;
+    else
+      pl->cid = MT_COLOR_STRIPE_EVEN;
+  }
 
   // ---------------------------------------------------------------------------
   // Display data
 
-  struct PagerData pdata = { 0 };
-  struct PagerView pview = { &pdata };
+  //QWQ pview.flags = MUTT_PAGER_MARKER | MUTT_PAGER_NOWRAP | MUTT_PAGER_STRIPES;
 
-  pview.mode = PAGER_MODE_HELP;
-  pview.flags = MUTT_PAGER_MARKER | MUTT_PAGER_NOWRAP | MUTT_PAGER_STRIPES;
-
-  banner = buf_pool_get();
-  buf_printf(banner, _("Help for %s"), menu_name);
-  pdata.fname = buf_string(tempfile);
-  pview.banner = buf_string(banner);
-  mutt_do_pager(&pview, NULL);
+  buf_printf(buf, _("Help for %s"), menu_name);
+  dlg_spager(pf, buf_string(buf), NeoMutt->sub);
 
 cleanup:
-
-  buf_pool_release(&banner);
-  buf_pool_release(&tempfile);
+  buf_pool_release(&buf);
+  paged_file_free(&pf);
   ARRAY_FREE(&bia_bind);
   ARRAY_FREE(&bia_macro);
   ARRAY_FREE(&bia_gen);
