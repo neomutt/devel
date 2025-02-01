@@ -755,6 +755,19 @@ $(PWD)/pattern:
 	$(MKDIR_P) $(PWD)/pattern
 
 ###############################################################################
+# libpfile
+LIBPFILE=	libpfile.a
+LIBPFILEOBJS=	pfile/paged_file.o pfile/paged_line.o pfile/paged_text.o
+CLEANFILES+=	$(LIBPFILE) $(LIBPFILEOBJS)
+ALLOBJS+=	$(LIBPFILEOBJS)
+
+$(LIBPFILE): $(PWD)/pfile $(LIBPFILEOBJS)
+	$(AR) cr $@ $(LIBPFILEOBJS)
+	$(RANLIB) $@
+$(PWD)/pfile:
+	$(MKDIR_P) $(PWD)/pfile
+
+###############################################################################
 # libpop
 LIBPOP=		libpop.a
 LIBPOPOBJS=	pop/adata.o pop/auth.o pop/config.o pop/edata.o pop/lib.o \
@@ -900,16 +913,18 @@ $(ALLOBJS):
 
 # The order of these libraries depends on their dependencies.
 # The libraries with the most dependencies will come first.
-MUTTLIBS+=	$(LIBINDEX) $(LIBPAGER) $(LIBINDEX) $(LIBPAGER) $(LIBAUTOCRYPT) $(LIBPOP) \
-		$(LIBEDITOR) $(LIBCOMPLETE) $(LIBBROWSER) $(LIBCOMPMBOX) $(LIBSTORE) \
-		$(LIBPROGRESS) $(LIBQUESTION) $(LIBPOSTPONE) $(LIBALIAS) $(LIBSEND) \
-		$(LIBCONVERT) $(LIBCOMPOSE) $(LIBATTACH) $(LIBKEY) $(LIBGUI) $(LIBNNTP) \
-		$(LIBPATTERN) $(LIBMENU) $(LIBCOLOR) $(LIBENVELOPE) \
-		$(LIBHELPBAR) $(LIBMBOX) $(LIBMH) $(LIBNOTMUCH) $(LIBMAILDIR) $(LIBEDITOR) $(LIBCOMPLETE) $(LIBNNTP) \
-		$(LIBNCRYPT) $(LIBIMAP) $(LIBCONN) $(LIBHCACHE) \
+MUTTLIBS+=	$(LIBINDEX) $(LIBPAGER) $(LIBINDEX) $(LIBPAGER) \
+		$(LIBPFILE) $(LIBAUTOCRYPT) $(LIBPOP) $(LIBEDITOR) \
+		$(LIBCOMPLETE) $(LIBBROWSER) $(LIBCOMPMBOX) $(LIBSTORE) \
+		$(LIBPROGRESS) $(LIBQUESTION) $(LIBPOSTPONE) $(LIBALIAS) \
+		$(LIBSEND) $(LIBCONVERT) $(LIBCOMPOSE) $(LIBATTACH) $(LIBKEY) \
+		$(LIBGUI) $(LIBNNTP) $(LIBPATTERN) $(LIBMENU) $(LIBCOLOR) \
+		$(LIBENVELOPE) $(LIBHELPBAR) $(LIBMBOX) $(LIBMH) \
+		$(LIBNOTMUCH) $(LIBMAILDIR) $(LIBEDITOR) $(LIBCOMPLETE) \
+		$(LIBNNTP) $(LIBNCRYPT) $(LIBIMAP) $(LIBCONN) $(LIBHCACHE) \
 		$(LIBCOMPRESS) $(LIBSIDEBAR) $(LIBBCACHE) $(LIBHISTORY) \
-		$(LIBCORE) $(LIBPARSE) $(LIBEXPANDO) $(LIBCONFIG) $(LIBEMAIL) $(LIBADDRESS) \
-		$(LIBDEBUG) $(LIBMUTT)
+		$(LIBCORE) $(LIBPARSE) $(LIBEXPANDO) $(LIBCONFIG) $(LIBEMAIL) \
+		$(LIBADDRESS) $(LIBDEBUG) $(LIBMUTT)
 
 # neomutt
 $(NEOMUTT): $(GENERATED) $(NEOMUTTOBJS) $(MUTTLIBS)
