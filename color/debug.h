@@ -27,15 +27,18 @@
 #include "mutt/lib.h"
 #include "curses2.h"
 
+struct PagedFile;
+
 #ifdef USE_DEBUG_COLOR
 
 const char *color_log_color(color_t fg, color_t bg);
 
 void curses_color_dump(struct CursesColor *cc, const char *prefix);
 
-void ansi_colors_dump  (struct Buffer *buf);
-void curses_colors_dump(struct Buffer *buf);
-void merged_colors_dump(struct Buffer *buf);
+void ansi_colors_dump  (struct PagedFile *pf);
+void curses_colors_dump(struct PagedFile *pf);
+void merged_colors_dump(struct PagedFile *pf);
+void log_paged_file(enum LogLevel level, struct PagedFile *pf);
 
 #define color_debug(LEVEL, ...) MuttLogger(0, __FILE__, __LINE__, __func__, LEVEL, __VA_ARGS__) ///< @ingroup logging_api
 
@@ -45,9 +48,10 @@ static inline const char *color_log_color(color_t fg, color_t bg) { return ""; }
 
 static inline void curses_color_dump(struct CursesColor *cc, const char *prefix) {}
 
-static inline void ansi_colors_dump  (struct Buffer *buf) {}
-static inline void curses_colors_dump(struct Buffer *buf) {}
-static inline void merged_colors_dump(struct Buffer *buf) {}
+static inline void ansi_colors_dump  (struct PagedFile *pf) {}
+static inline void curses_colors_dump(struct PagedFile *pf) {}
+static inline void merged_colors_dump(struct PagedFile *pf) {}
+static inline void log_paged_file(enum LogLevel level, struct PagedFile *pf) {}
 
 static inline int color_debug(enum LogLevel level, const char *format, ...) { return 0; }
 

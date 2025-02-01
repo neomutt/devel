@@ -104,7 +104,7 @@ static bool window_was_visible(struct MuttWindow *win)
  */
 static void window_notify(struct MuttWindow *win)
 {
-  if (!win->notify)
+  if (!win || !win->notify)
     return;
 
   const struct WindowState *old = &win->old;

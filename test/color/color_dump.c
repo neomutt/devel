@@ -29,6 +29,7 @@
 #include "core/lib.h"
 #include "gui/lib.h"
 #include "color/lib.h"
+#include "pfile/lib.h"
 
 static struct ConfigDef Vars[] = {
   // clang-format off
@@ -41,15 +42,19 @@ void test_color_dump(void)
 {
   // void color_dump(void);
 
-  color_dump();
+  TEST_CHECK(cs_register_variables(NeoMutt->sub->cs, Vars));
+
+  struct PagedFile *pf = NULL;
+
+  pf = paged_file_new(NULL);
+  color_dump(pf);
+  paged_file_free(&pf);
 
   curses_colors_init();
   merged_colors_init();
   quoted_colors_init();
   regex_colors_init();
   simple_colors_init();
-
-  TEST_CHECK(cs_register_variables(NeoMutt->sub->cs, Vars));
 
   struct AttrColor ac = { 0 };
 
@@ -97,5 +102,7 @@ void test_color_dump(void)
   regex_colors_parse_status_list(MT_COLOR_STATUS, "cherry", &ac, 0, NULL);
   regex_colors_parse_status_list(MT_COLOR_STATUS, "damson", &ac, 1, NULL);
 
-  color_dump();
+  pf = paged_file_new(NULL);
+  color_dump(pf);
+  paged_file_free(&pf);
 }

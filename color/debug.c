@@ -32,6 +32,7 @@
 #include "gui/lib.h"
 #include "debug.h"
 #include "pager/lib.h"
+#include "pfile/lib.h"
 #include "attr.h"
 #include "curses2.h"
 #include "dump.h"
@@ -78,9 +79,9 @@ const char *color_log_color(color_t fg, color_t bg)
 
 /**
  * ansi_colors_dump - Dump all the ANSI colours
- * @param buf   Buffer for result
+ * @param pf   Paged File to write to
  */
-void ansi_colors_dump(struct Buffer *buf)
+void ansi_colors_dump(struct PagedFile *pf)
 {
   struct MuttWindow *win = window_get_focus();
   if (!win || (win->type != WT_CUSTOM) || !win->parent || (win->parent->type != WT_PAGER))
@@ -91,10 +92,13 @@ void ansi_colors_dump(struct Buffer *buf)
     return;
 
   struct Buffer *swatch = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
-  buf_addstr(buf, "# Ansi Colors\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, "# Ansi Colors\n");
   struct AttrColor *ac = NULL;
   TAILQ_FOREACH(ac, &priv->ansi_list, entries)
   {
@@ -103,14 +107,17 @@ void ansi_colors_dump(struct Buffer *buf)
       continue;
 
     color_log_color_attrs(ac, swatch);
-    buf_add_printf(buf, "# %-30s %-16s %-16s # %s\n", color_log_attrs_list(ac->attrs),
-                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                   buf_string(swatch));
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "# %-30s %-16s %-16s # %s\n", color_log_attrs_list(ac->attrs),
+               color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+               color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+    paged_line_add_text(pl, buf_string(buf));
   }
 
-  buf_addstr(buf, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
   buf_pool_release(&swatch);
+  buf_pool_release(&buf);
 }
 
 /**
@@ -138,17 +145,21 @@ void curses_color_dump(struct CursesColor *cc, const char *prefix)
 
 /**
  * curses_colors_dump - Dump all the Curses colours
- * @param buf   Buffer for result
+ * @param pf   Paged File to write to
  */
-void curses_colors_dump(struct Buffer *buf)
+void curses_colors_dump(struct PagedFile *pf)
 {
   if (TAILQ_EMPTY(&CursesColors))
     return;
 
   struct Buffer *swatch = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
+  struct PagedLine *pl = NULL;
 
-  buf_addstr(buf, "# Curses Colors\n");
-  buf_add_printf(buf, "# Index fg      bg      Color  rc\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, "# Curses Colors\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, "# Index fg      bg      Color  rc\n");
 
   struct CursesColor *cc = NULL;
   TAILQ_FOREACH(cc, &CursesColors, entries)
@@ -162,27 +173,34 @@ void curses_colors_dump(struct Buffer *buf)
       snprintf(bg, sizeof(bg), "#%06x", cc->bg);
 
     const char *color = color_log_color(cc->fg, cc->bg);
-    buf_add_printf(buf, "# %5d %-7s %-7s %s %2d\n", cc->index, fg, bg, color, cc->ref_count);
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "# %5d %-7s %-7s %s %2d\n", cc->index, fg, bg, color, cc->ref_count);
+    paged_line_add_text(pl, buf_string(buf));
   }
 
-  buf_addstr(buf, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
   buf_pool_release(&swatch);
+  buf_pool_release(&buf);
 }
 
 /**
  * merged_colors_dump - Dump all the Merged colours
- * @param buf   Buffer for result
+ * @param pf   Paged File to write to
  */
-void merged_colors_dump(struct Buffer *buf)
+void merged_colors_dump(struct PagedFile *pf)
 {
   if (TAILQ_EMPTY(&MergedColors))
     return;
 
   struct Buffer *swatch = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
-  buf_addstr(buf, "# Merged Colors\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, "# Merged Colors\n");
   struct AttrColor *ac = NULL;
   TAILQ_FOREACH(ac, &MergedColors, entries)
   {
@@ -191,12 +209,29 @@ void merged_colors_dump(struct Buffer *buf)
       continue;
 
     color_log_color_attrs(ac, swatch);
-    buf_add_printf(buf, "# %-30s %-16s %-16s # %s\n", color_log_attrs_list(ac->attrs),
-                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                   buf_string(swatch));
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "# %-30s %-16s %-16s # %s\n", color_log_attrs_list(ac->attrs),
+               color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+               color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+    paged_line_add_text(pl, buf_string(buf));
   }
 
-  buf_addstr(buf, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
   buf_pool_release(&swatch);
+  buf_pool_release(&buf);
+}
+
+/**
+ * log_paged_file - Dump a PagedFile to the log
+ * @param level Log level, e.g. #LL_DEBUG1
+ * @param pf    Paged File to dump
+ */
+void log_paged_file(enum LogLevel level, struct PagedFile *pf)
+{
+  struct PagedLine *pl = NULL;
+  ARRAY_FOREACH(pl, &pf->lines)
+  {
+    mutt_debug(level, "%s", paged_line_get_text(pl));
+  }
 }

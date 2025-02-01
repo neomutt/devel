@@ -41,6 +41,9 @@ static struct MuttWindow *WinFocus = NULL;
 
 static void win_dump(struct MuttWindow *win, int indent)
 {
+  if (!win)
+    return;
+
   bool visible = mutt_window_is_visible(win);
 
   mutt_debug(LL_DEBUG1, "%*s%s[%d,%d] %s-%c \033[1;33m%s\033[0m (%d,%d)%s%s\n",

@@ -33,8 +33,15 @@
 
 typedef uint16_t MuttRedrawFlags;
 
+#ifndef USE_DEBUG_WINDOW
 void debug_win_dump(void)
 {
+}
+#endif
+
+struct MuttWindow *sbar_new(void)
+{
+  return NULL;
 }
 
 void menu_set_current_redraw_full(void)

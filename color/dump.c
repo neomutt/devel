@@ -31,10 +31,9 @@
 #include <stdio.h>
 #include "mutt/lib.h"
 #include "config/lib.h"
-#include "core/lib.h"
 #include "gui/lib.h"
 #include "dump.h"
-#include "pager/lib.h"
+#include "pfile/lib.h"
 #include "attr.h"
 #include "color.h"
 #include "parse_color.h"
@@ -220,15 +219,18 @@ const char *color_log_name(char *buf, int buflen, struct ColorElement *elem)
 
 /**
  * quoted_colors_dump - Dump all the Quoted colours
- * @param buf Buffer for result
+ * @param pf PagerFile to write to
  */
-void quoted_colors_dump(struct Buffer *buf)
+void quoted_colors_dump(struct PagedFile *pf)
 {
   struct Buffer *swatch = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
-  buf_addstr(buf, _("# Quoted Colors\n"));
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, _("# Quoted Colors\n"));
   for (int i = 0; i < 10; i++)
   {
     struct AttrColor *ac = simple_color_get(MT_COLOR_QUOTED0 + i);
@@ -236,27 +238,33 @@ void quoted_colors_dump(struct Buffer *buf)
       continue;
 
     color_log_color_attrs(ac, swatch);
-    buf_add_printf(buf, "color quoted%d %-20s %-16s %-16s # %s\n", i,
-                   color_log_attrs_list(ac->attrs),
-                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                   buf_string(swatch));
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "color quoted%d %-20s %-16s %-16s # %s\n", i,
+               color_log_attrs_list(ac->attrs),
+               color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+               color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+    paged_line_add_text(pl, buf_string(buf));
   }
 
-  buf_addstr(buf, "\n");
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
+  buf_pool_release(&buf);
   buf_pool_release(&swatch);
 }
 
 /**
  * regex_colors_dump - Dump all the Regex colours
- * @param buf   Buffer for result
+ * @param pf PagerFile to write to
  */
-void regex_colors_dump(struct Buffer *buf)
+void regex_colors_dump(struct PagedFile *pf)
 {
   struct Buffer *swatch = buf_pool_get();
   struct Buffer *pattern = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
   for (enum ColorId cid = MT_COLOR_NONE; cid != MT_COLOR_MAX; cid++)
   {
@@ -274,7 +282,9 @@ void regex_colors_dump(struct Buffer *buf)
     if (!name)
       continue; // LCOV_EXCL_LINE
 
-    buf_add_printf(buf, _("# Regex Color %s\n"), name);
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, _("# Regex Color %s\n"), name);
+    paged_line_add_text(pl, buf_string(buf));
 
     struct RegexColor *rc = NULL;
     STAILQ_FOREACH(rc, rcl, entries)
@@ -284,28 +294,35 @@ void regex_colors_dump(struct Buffer *buf)
       buf_reset(pattern);
       pretty_var(rc->pattern, pattern);
       color_log_color_attrs(ac, swatch);
-      buf_add_printf(buf, "color %-16s %-20s %-16s %-16s %-30s # %s\n", name,
-                     color_log_attrs_list(ac->attrs),
-                     color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                     color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                     buf_string(pattern), buf_string(swatch));
+      pl = paged_file_new_line(pf);
+      buf_printf(buf, "color %-16s %-20s %-16s %-16s %-30s # %s\n", name,
+                 color_log_attrs_list(ac->attrs),
+                 color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+                 color_log_name(color_bg, sizeof(color_bg), &ac->bg),
+                 buf_string(pattern), buf_string(swatch));
+      paged_line_add_text(pl, buf_string(buf));
     }
-    buf_addstr(buf, "\n");
+
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
   }
 
+  buf_pool_release(&buf);
   buf_pool_release(&swatch);
   buf_pool_release(&pattern);
 }
 
 /**
  * simple_colors_dump - Dump all the Simple colours
- * @param buf   Buffer for result
+ * @param pf PagerFile to write to
  */
-void simple_colors_dump(struct Buffer *buf)
+void simple_colors_dump(struct PagedFile *pf)
 {
   struct Buffer *swatch = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
   int count = 0;
   for (enum ColorId cid = MT_COLOR_NONE + 1; cid < MT_COLOR_MAX; cid++)
@@ -320,7 +337,9 @@ void simple_colors_dump(struct Buffer *buf)
 
   if (count > 0)
   {
-    buf_addstr(buf, _("# Simple Colors\n"));
+    pl = paged_file_new_line(pf);
+    paged_line_add_text(pl, _("# Simple Colors\n"));
+
     for (enum ColorId cid = MT_COLOR_NONE + 1; cid < MT_COLOR_MAX; cid++)
     {
       if (COLOR_QUOTED(cid) || COLOR_COMPOSE(cid) || (cid == MT_COLOR_STATUS))
@@ -335,13 +354,16 @@ void simple_colors_dump(struct Buffer *buf)
         continue;
 
       color_log_color_attrs(ac, swatch);
-      buf_add_printf(buf, "color %-18s %-20s %-16s %-16s # %s\n", name,
-                     color_log_attrs_list(ac->attrs),
-                     color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                     color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                     buf_string(swatch));
+      pl = paged_file_new_line(pf);
+      buf_printf(buf, "color %-18s %-20s %-16s %-16s # %s\n", name,
+                 color_log_attrs_list(ac->attrs),
+                 color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+                 color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+      paged_line_add_text(pl, buf_string(buf));
     }
-    buf_addstr(buf, "\n");
+
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
   }
 
   count = 0;
@@ -354,7 +376,8 @@ void simple_colors_dump(struct Buffer *buf)
 
   if (count > 0)
   {
-    buf_addstr(buf, _("# Compose Colors\n"));
+    pl = paged_file_new_line(pf);
+    paged_line_add_text(pl, _("# Compose Colors\n"));
     for (int i = 0; ColorFields[i].name; i++)
     {
       enum ColorId cid = ColorFields[i].value;
@@ -367,28 +390,34 @@ void simple_colors_dump(struct Buffer *buf)
         continue;
 
       color_log_color_attrs(ac, swatch);
-      buf_add_printf(buf, "color %-24s %-20s %-16s %-16s # %s\n",
-                     ColorFields[i].name, color_log_attrs_list(ac->attrs),
-                     color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                     color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                     buf_string(swatch));
+      pl = paged_file_new_line(pf);
+      buf_printf(buf, "color %-24s %-20s %-16s %-16s # %s\n",
+                 ColorFields[i].name, color_log_attrs_list(ac->attrs),
+                 color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+                 color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+      paged_line_add_text(pl, buf_string(buf));
     }
-    buf_addstr(buf, "\n");
+
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
   }
 
+  buf_pool_release(&buf);
   buf_pool_release(&swatch);
 }
 
 /**
  * status_colors_dump - Dump all the Status colours
- * @param buf   Buffer for result
+ * @param pf PagerFile to write to
  */
-void status_colors_dump(struct Buffer *buf)
+void status_colors_dump(struct PagedFile *pf)
 {
   struct Buffer *swatch = buf_pool_get();
   struct Buffer *pattern = buf_pool_get();
+  struct Buffer *buf = buf_pool_get();
   char color_fg[64] = { 0 };
   char color_bg[64] = { 0 };
+  struct PagedLine *pl = NULL;
 
   bool set = false;
 
@@ -403,14 +432,16 @@ void status_colors_dump(struct Buffer *buf)
 
   if (set)
   {
-    buf_addstr(buf, _("# Status Colors\n"));
+    pl = paged_file_new_line(pf);
+    paged_line_add_text(pl, _("# Status Colors\n"));
 
     color_log_color_attrs(ac, swatch);
-    buf_add_printf(buf, "color status %-20s %-16s %-16s                                # %s\n",
-                   color_log_attrs_list(ac->attrs),
-                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                   buf_string(swatch));
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "color status %-20s %-16s %-16s                                # %s\n",
+               color_log_attrs_list(ac->attrs),
+               color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+               color_log_name(color_bg, sizeof(color_bg), &ac->bg), buf_string(swatch));
+    paged_line_add_text(pl, buf_string(buf));
 
     struct RegexColor *rc = NULL;
     STAILQ_FOREACH(rc, rcl, entries)
@@ -420,76 +451,53 @@ void status_colors_dump(struct Buffer *buf)
       buf_reset(pattern);
       pretty_var(rc->pattern, pattern);
       color_log_color_attrs(ac, swatch);
+      pl = paged_file_new_line(pf);
       if (rc->match == 0)
       {
-        buf_add_printf(buf, "color status %-20s %-16s %-16s %-30s # %s\n",
-                       color_log_attrs_list(ac->attrs),
-                       color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                       color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                       buf_string(pattern), buf_string(swatch));
+        buf_printf(buf, "color status %-20s %-16s %-16s %-30s # %s\n",
+                   color_log_attrs_list(ac->attrs),
+                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
+                   buf_string(pattern), buf_string(swatch));
       }
       else
       {
-        buf_add_printf(buf, "color status %-20s %-16s %-16s %-28s %d # %s\n",
-                       color_log_attrs_list(ac->attrs),
-                       color_log_name(color_fg, sizeof(color_fg), &ac->fg),
-                       color_log_name(color_bg, sizeof(color_bg), &ac->bg),
-                       buf_string(pattern), rc->match, buf_string(swatch));
+        buf_printf(buf, "color status %-20s %-16s %-16s %-28s %d # %s\n",
+                   color_log_attrs_list(ac->attrs),
+                   color_log_name(color_fg, sizeof(color_fg), &ac->fg),
+                   color_log_name(color_bg, sizeof(color_bg), &ac->bg),
+                   buf_string(pattern), rc->match, buf_string(swatch));
       }
+      paged_line_add_text(pl, buf_string(buf));
     }
-    buf_addstr(buf, "\n");
+
+    pl = paged_file_new_line(pf);
+    paged_line_add_newline(pl);
   }
 
   buf_pool_release(&swatch);
   buf_pool_release(&pattern);
+  buf_pool_release(&buf);
 }
 
 /**
  * color_dump - Display all the colours in the Pager
+ * @param pf PagerFile to write to
  */
-void color_dump(void)
+void color_dump(struct PagedFile *pf)
 {
-  struct Buffer *tempfile = buf_pool_get();
-
-  buf_mktemp(tempfile);
-  FILE *fp = mutt_file_fopen(buf_string(tempfile), "w");
-  if (!fp)
-  {
-    // LCOV_EXCL_START
-    // L10N: '%s' is the file name of the temporary file
-    mutt_error(_("Could not create temporary file %s"), buf_string(tempfile));
-    buf_pool_release(&tempfile);
+  if (!pf)
     return;
-    // LCOV_EXCL_STOP
-  }
 
-  struct Buffer *buf = buf_pool_get();
-
-  simple_colors_dump(buf);
-  quoted_colors_dump(buf);
-  status_colors_dump(buf);
-  regex_colors_dump(buf);
+  simple_colors_dump(pf);
+  quoted_colors_dump(pf);
+  status_colors_dump(pf);
+  regex_colors_dump(pf);
 
 #ifdef USE_DEBUG_COLOR
-  merged_colors_dump(buf);
-  ansi_colors_dump(buf);
-  curses_colors_dump(buf);
-  log_multiline(LL_DEBUG1, buf_string(buf));
+  merged_colors_dump(pf);
+  ansi_colors_dump(pf);
+  curses_colors_dump(pf);
+  log_paged_file(LL_DEBUG1, pf);
 #endif
-
-  mutt_file_save_str(fp, buf_string(buf));
-  buf_pool_release(&buf);
-  mutt_file_fclose(&fp);
-
-  struct PagerData pdata = { 0 };
-  struct PagerView pview = { &pdata };
-
-  pdata.fname = buf_string(tempfile);
-
-  pview.banner = "color";
-  pview.flags = MUTT_SHOWCOLOR;
-  pview.mode = PAGER_MODE_OTHER;
-
-  mutt_do_pager(&pview, NULL);
-  buf_pool_release(&tempfile);
 }

@@ -26,8 +26,9 @@
 struct AttrColor;
 struct Buffer;
 struct ColorElement;
+struct PagedFile;
 
-void color_dump(void);
+void color_dump(struct PagedFile *pf);
 
 const char *color_log_attrs_list (int attrs);
 void        color_log_color_attrs(struct AttrColor *ac, struct Buffer *swatch);
