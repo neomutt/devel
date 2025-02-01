@@ -4,7 +4,7 @@
  *
  * @authors
  * Copyright (C) 2016-2020 Pietro Cerutti <gahr@gahr.ch>
- * Copyright (C) 2016-2023 Richard Russon <rich@flatcap.org>
+ * Copyright (C) 2016-2025 Richard Russon <rich@flatcap.org>
  *
  * @copyright
  * This program is free software: you can redistribute it and/or modify it under
@@ -37,6 +37,7 @@
 #include "gui/lib.h"
 #include "version.h"
 #include "compress/lib.h"
+#include "pfile/lib.h"
 #ifdef HAVE_LIBIDN
 #include "address/lib.h"
 #endif
@@ -60,9 +61,6 @@
 const char *mutt_make_version(void);
 const char *store_backend_list(void);
 const char *store_compress_list(void);
-
-/// CLI: Width to wrap version info
-static const int SCREEN_WIDTH = 80;
 
 extern unsigned char cc_cflags[];
 extern unsigned char configure_options[];
@@ -303,8 +301,9 @@ static const struct CompileOptions DebugOpts[] = {
 
 /**
  * print_compile_options - Print a list of enabled/disabled features
- * @param co Array of compile options
- * @param fp file to write to
+ * @param co    Array of compile options
+ * @param width Width to wrap to (0 for no wrapping)
+ * @param pf    PagedFile to write to
  *
  * Two lists are generated and passed to this function:
  *
@@ -314,22 +313,33 @@ static const struct CompileOptions DebugOpts[] = {
  * The output is of the form: "+enabled_feature -disabled_feature" and is
  * wrapped to SCREEN_WIDTH characters.
  */
-static void print_compile_options(const struct CompileOptions *co, FILE *fp)
+static void print_compile_options(const struct CompileOptions *co, int width,
+                                  struct PagedFile *pf)
 {
-  if (!co || !fp)
+  if (!co || !pf)
     return;
 
   size_t used = 2;
-  bool tty = isatty(fileno(fp));
+  bool tty = isatty(fileno(pf->fp));
+  struct Buffer *buf = buf_pool_get();
+  struct PagedLine *pl = NULL;
 
-  fprintf(fp, "  ");
+  pl = paged_file_new_line(pf);
+  if (width > 0)
+    paged_line_add_text(pl, "  ");
+
   for (int i = 0; co[i].name; i++)
   {
     const size_t len = strlen(co[i].name) + 2; /* +/- and a space */
-    if ((used + len) > SCREEN_WIDTH)
+    if ((width > 0) && ((used + len) > width))
     {
+      paged_line_add_text(pl, buf_string(buf));
+      paged_line_add_text(pl, "\n");
+      buf_reset(buf);
+
       used = 2;
-      fprintf(fp, "\n  ");
+      pl = paged_file_new_line(pf);
+      paged_line_add_text(pl, "  ");
     }
     used += len;
     const char *fmt = "?%s ";
@@ -354,9 +364,14 @@ static void print_compile_options(const struct CompileOptions *co, FILE *fp)
           fmt = "%s ";
         break;
     }
-    fprintf(fp, fmt, co[i].name);
+    buf_add_printf(buf, fmt, co[i].name);
   }
-  fprintf(fp, "\n");
+  paged_line_add_text(pl, buf_string(buf));
+
+  pl = paged_file_new_line(pf);
+  paged_line_add_text(pl, "\n");
+
+  buf_pool_release(&buf);
 }
 
 /**
@@ -382,19 +397,23 @@ static char *rstrip_in_place(char *s)
 
 /**
  * print_version - Print system and compile info to a file
- * @param fp File to print to
+ * @param pf    PagedFile to write to
+ * @param width Width to wrap at (0 for no wrapping)
  * @retval true Text displayed
  *
  * Print information about the current system NeoMutt is running on.
  * Also print a list of all the compile-time information.
  */
-bool print_version(FILE *fp)
+bool print_version(struct PagedFile *pf, int width)
 {
-  if (!fp)
+  if (!pf)
     return false;
 
+  struct Buffer *buf = buf_pool_get();
   struct utsname uts = { 0 };
-  bool tty = isatty(fileno(fp));
+  bool tty = isatty(fileno(pf->fp));
+
+  struct PagedLine *pl = NULL;
 
   const char *col_cyan = "";
   const char *col_bold = "";
@@ -407,107 +426,173 @@ bool print_version(FILE *fp)
     col_end = "\033[0m";     // Escape, end
   }
 
-  fprintf(fp, "%s%s%s\n", col_cyan, mutt_make_version(), col_end);
-  fprintf(fp, "%s\n", _(Notice));
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%s%s%s\n", col_cyan, mutt_make_version(), col_end);
+  paged_line_add_text(pl, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%s\n", _(Notice));
+  paged_line_add_text(pl, buf_string(buf));
 
   uname(&uts);
 
-  fprintf(fp, "%sSystem:%s ", col_bold, col_end);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sSystem:%s ", col_bold, col_end);
+  paged_line_add_text(pl, buf_string(buf));
 #ifdef SCO
-  fprintf(fp, "SCO %s", uts.release);
+  buf_printf(buf, "SCO %s", uts.release);
+  paged_line_add_text(pl, buf_string(buf));
 #else
-  fprintf(fp, "%s %s", uts.sysname, uts.release);
+  buf_printf(buf, "%s %s", uts.sysname, uts.release);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
+  buf_printf(buf, " (%s)\n", uts.machine);
+  paged_line_add_text(pl, buf_string(buf));
 
-  fprintf(fp, " (%s)", uts.machine);
-
-  fprintf(fp, "\n%sncurses:%s %s", col_bold, col_end, curses_version());
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sncurses:%s %s", col_bold, col_end, curses_version());
+  paged_line_add_text(pl, buf_string(buf));
 #ifdef NCURSES_VERSION
-  fprintf(fp, " (compiled with %s.%d)", NCURSES_VERSION, NCURSES_VERSION_PATCH);
+  buf_printf(buf, " (compiled with %s.%d)", NCURSES_VERSION, NCURSES_VERSION_PATCH);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
+  paged_line_add_text(pl, "\n");
 
 #ifdef _LIBICONV_VERSION
-  fprintf(fp, "\n%slibiconv:%s %d.%d", col_bold, col_end,
-          _LIBICONV_VERSION >> 8, _LIBICONV_VERSION & 0xff);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%slibiconv:%s %d.%d\n", col_bold, col_end,
+             _LIBICONV_VERSION >> 8, _LIBICONV_VERSION & 0xff);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 
 #ifdef HAVE_LIBIDN
-  fprintf(fp, "\n%slibidn2:%s %s", col_bold, col_end, mutt_idna_print_version());
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%slibidn2:%s %s\n", col_bold, col_end, mutt_idna_print_version());
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 
 #ifdef CRYPT_BACKEND_GPGME
-  fprintf(fp, "\n%sGPGME:%s %s", col_bold, col_end, mutt_gpgme_print_version());
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sGPGME:%s %s\n", col_bold, col_end, mutt_gpgme_print_version());
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 
 #ifdef USE_SSL_OPENSSL
 #ifdef LIBRESSL_VERSION_TEXT
-  fprintf(fp, "\n%sLibreSSL:%s %s", col_bold, col_end, LIBRESSL_VERSION_TEXT);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sLibreSSL:%s %s\n", col_bold, col_end, LIBRESSL_VERSION_TEXT);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 #ifdef OPENSSL_VERSION_TEXT
-  fprintf(fp, "\n%sOpenSSL:%s %s", col_bold, col_end, OPENSSL_VERSION_TEXT);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sOpenSSL:%s %s\n", col_bold, col_end, OPENSSL_VERSION_TEXT);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 #endif
 
 #ifdef USE_SSL_GNUTLS
-  fprintf(fp, "\n%sGnuTLS:%s %s", col_bold, col_end, GNUTLS_VERSION);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sGnuTLS:%s %s\n", col_bold, col_end, GNUTLS_VERSION);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 
 #ifdef HAVE_NOTMUCH
-  fprintf(fp, "\n%slibnotmuch:%s %d.%d.%d", col_bold, col_end, LIBNOTMUCH_MAJOR_VERSION,
-          LIBNOTMUCH_MINOR_VERSION, LIBNOTMUCH_MICRO_VERSION);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%slibnotmuch:%s %d.%d.%d\n", col_bold, col_end, LIBNOTMUCH_MAJOR_VERSION,
+             LIBNOTMUCH_MINOR_VERSION, LIBNOTMUCH_MICRO_VERSION);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 
 #ifdef HAVE_PCRE2
   {
     char version[24] = { 0 };
     pcre2_config(PCRE2_CONFIG_VERSION, version);
-    fprintf(fp, "\n%sPCRE2:%s %s", col_bold, col_end, version);
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "%sPCRE2:%s %s\n", col_bold, col_end, version);
+    paged_line_add_text(pl, buf_string(buf));
   }
 #endif
 
 #ifdef USE_HCACHE
   const char *backends = store_backend_list();
-  fprintf(fp, "\n%sstorage:%s %s", col_bold, col_end, backends);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sstorage:%s %s\n", col_bold, col_end, backends);
+  paged_line_add_text(pl, buf_string(buf));
   FREE(&backends);
 #ifdef USE_HCACHE_COMPRESSION
   backends = compress_list();
-  fprintf(fp, "\n%scompression:%s %s", col_bold, col_end, backends);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%scompression:%s %s\n", col_bold, col_end, backends);
+  paged_line_add_text(pl, buf_string(buf));
   FREE(&backends);
 #endif
 #endif
 
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
   rstrip_in_place((char *) configure_options);
-  fprintf(fp, "\n\n%sConfigure options:%s %s\n", col_bold, col_end, (char *) configure_options);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sConfigure options:%s %s\n", col_bold, col_end, (char *) configure_options);
+  paged_line_add_text(pl, buf_string(buf));
+
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
 
   rstrip_in_place((char *) cc_cflags);
-  fprintf(fp, "\n%sCompilation CFLAGS:%s %s\n", col_bold, col_end, (char *) cc_cflags);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%sCompilation CFLAGS:%s %s\n", col_bold, col_end, (char *) cc_cflags);
+  paged_line_add_text(pl, buf_string(buf));
 
-  fprintf(fp, "\n%s%s%s\n", col_bold, _("Compile options:"), col_end);
-  print_compile_options(CompOpts, fp);
+  pl = paged_file_new_line(pf);
+  paged_line_add_newline(pl);
+
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "%s%s%s\n", col_bold, _("Compile options:"), col_end);
+  paged_line_add_text(pl, buf_string(buf));
+  print_compile_options(CompOpts, width, pf);
 
   if (DebugOpts[0].name)
   {
-    fprintf(fp, "\n%s%s%s\n", col_bold, _("Devel options:"), col_end);
-    print_compile_options(DebugOpts, fp);
+    pl = paged_file_new_line(pf);
+    buf_printf(buf, "%s%s%s\n", col_bold, _("Devel options:"), col_end);
+    paged_line_add_text(pl, buf_string(buf));
+    print_compile_options(DebugOpts, width, pf);
   }
 
-  fprintf(fp, "\n");
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "\n");
+  paged_line_add_text(pl, buf_string(buf));
 #ifdef DOMAIN
-  fprintf(fp, "DOMAIN=\"%s\"\n", DOMAIN);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "DOMAIN=\"%s\"\n", DOMAIN);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
 #ifdef ISPELL
-  fprintf(fp, "ISPELL=\"%s\"\n", ISPELL);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "ISPELL=\"%s\"\n", ISPELL);
+  paged_line_add_text(pl, buf_string(buf));
 #endif
-  fprintf(fp, "MAILPATH=\"%s\"\n", MAILPATH);
-  fprintf(fp, "PKGDATADIR=\"%s\"\n", PKGDATADIR);
-  fprintf(fp, "SENDMAIL=\"%s\"\n", SENDMAIL);
-  fprintf(fp, "SYSCONFDIR=\"%s\"\n", SYSCONFDIR);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "MAILPATH=\"%s\"\n", MAILPATH);
+  paged_line_add_text(pl, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "PKGDATADIR=\"%s\"\n", PKGDATADIR);
+  paged_line_add_text(pl, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "SENDMAIL=\"%s\"\n", SENDMAIL);
+  paged_line_add_text(pl, buf_string(buf));
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "SYSCONFDIR=\"%s\"\n", SYSCONFDIR);
+  paged_line_add_text(pl, buf_string(buf));
 
-  fprintf(fp, "\n");
-  fputs(_(ReachingUs), fp);
+  pl = paged_file_new_line(pf);
+  buf_printf(buf, "\n");
+  paged_line_add_text(pl, buf_string(buf));
 
-  fflush(fp);
-  return !ferror(fp);
+  paged_line_add_text(pl, _(ReachingUs));
+
+  buf_pool_release(&buf);
+  return true;
 }
 
 /**

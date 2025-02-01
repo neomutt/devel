@@ -24,9 +24,10 @@
 #define MUTT_VERSION_H
 
 #include <stdbool.h>
-#include <stdio.h>
 
-bool print_version(FILE *fp);
+struct PagedFile;
+
+bool print_version(struct PagedFile *pf, int width);
 bool print_copyright(void);
 bool feature_enabled(const char *name);
 

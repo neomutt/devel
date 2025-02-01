@@ -162,6 +162,7 @@
 #include "nntp/lib.h"
 #include "notmuch/lib.h"
 #include "parse/lib.h"
+#include "pfile/lib.h"
 #include "pop/lib.h"
 #include "postpone/lib.h"
 #include "question/lib.h"
@@ -1221,9 +1222,15 @@ main
     log_queue_flush(log_disp_terminal);
     bool done;
     if (version == 1)
-      done = print_version(stdout);
+    {
+      struct PagedFile *pf = paged_file_new(stdout);
+      done = print_version(pf, 80);
+      paged_file_free(&pf);
+    }
     else
+    {
       done = print_copyright();
+    }
     OptNoCurses = true;
     if (done)
       goto main_ok; // TEST04: neomutt -v
