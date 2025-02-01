@@ -569,6 +569,9 @@ void test_fini(void);
   NEOMUTT_TEST_ITEM(test_mutt_pattern_comp)                                    \
   NEOMUTT_TEST_ITEM(test_mutt_pattern_leak)                                    \
                                                                                \
+  /* pfile */                                                                  \
+  NEOMUTT_TEST_ITEM(test_pfile)                                                \
+                                                                               \
   /* prex */                                                                   \
   NEOMUTT_TEST_ITEM(test_mutt_prex_capture)                                    \
   NEOMUTT_TEST_ITEM(test_mutt_prex_cleanup)                                    \

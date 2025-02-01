@@ -522,6 +522,8 @@ PATTERN_OBJS	= pattern/pattern.o \
 		  test/pattern/dummy.o \
 		  test/pattern/leak.o
 
+PFILE_OBJS	= test/pfile/pfile.o
+
 POOL_OBJS	= test/pool/buf_pool_cleanup.o \
 		  test/pool/buf_pool_get.o \
 		  test/pool/buf_pool_release.o
@@ -677,11 +679,12 @@ BUILD_DIRS	= $(PWD)/test/account $(PWD)/test/address $(PWD)/test/array \
 		  $(PWD)/test/mbyte $(PWD)/test/md5 $(PWD)/test/memory \
 		  $(PWD)/test/neo $(PWD)/test/notify $(PWD)/test/notmuch \
 		  $(PWD)/test/parameter $(PWD)/test/parse $(PWD)/test/path \
-		  $(PWD)/test/pattern $(PWD)/test/pool $(PWD)/test/prex \
-		  $(PWD)/test/random $(PWD)/test/regex $(PWD)/test/rfc2047 \
-		  $(PWD)/test/rfc2231 $(PWD)/test/signal $(PWD)/test/slist \
-		  $(PWD)/test/sort $(PWD)/test/store $(PWD)/test/string \
-		  $(PWD)/test/tags $(PWD)/test/thread $(PWD)/test/url
+		  $(PWD)/test/pattern $(PWD)/test/pfile $(PWD)/test/pool \
+		  $(PWD)/test/prex $(PWD)/test/random $(PWD)/test/regex \
+		  $(PWD)/test/rfc2047 $(PWD)/test/rfc2231 $(PWD)/test/signal \
+		  $(PWD)/test/slist $(PWD)/test/sort $(PWD)/test/store \
+		  $(PWD)/test/string $(PWD)/test/tags $(PWD)/test/thread \
+		  $(PWD)/test/url
 
 TEST_OBJS	= test/common.o test/main.o \
 		  $(ACCOUNT_OBJS) \
@@ -728,6 +731,7 @@ TEST_OBJS	= test/common.o test/main.o \
 		  $(PARSE_OBJS) \
 		  $(PATH_OBJS) \
 		  $(PATTERN_OBJS) \
+		  $(PFILE_OBJS) \
 		  $(POOL_OBJS) \
 		  $(PREX_OBJS) \
 		  $(RANDOM_OBJS) \
