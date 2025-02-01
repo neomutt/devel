@@ -33,10 +33,12 @@
 #include <stdio.h>
 #include "mutt/lib.h"
 #include "core/lib.h"
+#include "color/lib.h"
 #include "key/lib.h"
 #include "menu/lib.h"
-#include "pager/lib.h"
 #include "parse/lib.h"
+#include "pfile/lib.h"
+#include "spager/lib.h"
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #endif
@@ -44,12 +46,13 @@
 /**
  * print_bind - Display the bindings for one menu
  * @param menu Menu type
- * @param fp   File to write to
+ * @param pf   PagedFile to write to
  * @retval num Number of bindings
  */
-static int print_bind(enum MenuType menu, FILE *fp)
+static int print_bind(enum MenuType menu, struct PagedFile *pf)
 {
   struct BindingInfoArray bia_bind = ARRAY_HEAD_INITIALIZER;
+  struct PagedLine *pl = NULL;
 
   gather_menu(menu, &bia_bind, NULL);
   if (ARRAY_EMPTY(&bia_bind))
@@ -58,15 +61,48 @@ static int print_bind(enum MenuType menu, FILE *fp)
   ARRAY_SORT(&bia_bind, binding_sort, NULL);
   const int wb0 = measure_column(&bia_bind, 0);
   const int wb1 = measure_column(&bia_bind, 1);
+  int len0;
+  int len1;
 
   const char *menu_name = mutt_map_get_name(menu, MenuNames);
 
+  struct Buffer *buf = buf_pool_get();
   struct BindingInfo *bi = NULL;
   ARRAY_FOREACH(bi, &bia_bind)
   {
-    //XXX use description?
-    fprintf(fp, "bind %s %*s  %*s  # %s\n", menu_name, -wb0, bi->a[0], -wb1,
-            bi->a[1], bi->a[2]);
+    pl = paged_file_new_line(pf);
+
+    // bind menu
+    paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, "bind");
+    paged_line_add_text(pl, " ");
+    paged_line_add_colored_text(pl, MT_COLOR_ENUM, menu_name);
+    paged_line_add_text(pl, " ");
+
+    // keybinding
+    len0 = paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, bi->a[0]);
+    buf_printf(buf, "%*s", wb0 - len0, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, " ");
+
+    // function
+    len1 = paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, bi->a[1]);
+    buf_printf(buf, "%*s", wb1 - len1, "");
+    paged_line_add_text(pl, buf_string(buf));
+
+    // function description
+    paged_line_add_text(pl, " ");
+    buf_printf(buf, "# %s\n", bi->a[2]);
+    paged_line_add_colored_text(pl, MT_COLOR_COMMENT, buf_string(buf));
+  }
+  buf_pool_release(&buf);
+
+  // Apply striping
+  ARRAY_FOREACH(pl, &pf->lines)
+  {
+    if ((ARRAY_FOREACH_IDX_pl % 2) == 0)
+      pl->cid = MT_COLOR_STRIPE_ODD;
+    else
+      pl->cid = MT_COLOR_STRIPE_EVEN;
   }
 
   const int count = ARRAY_SIZE(&bia_bind);
@@ -82,35 +118,38 @@ static int print_bind(enum MenuType menu, FILE *fp)
 /**
  * colon_bind - Dump the key bindings
  * @param menu Menu type
- * @param fp   File to write to
+ * @param pf   PagedFile to write to
  */
-static void colon_bind(enum MenuType menu, FILE *fp)
+static void colon_bind(enum MenuType menu, struct PagedFile *pf)
 {
   if (menu == MENU_MAX)
   {
+    struct PagedLine *pl = NULL;
     for (enum MenuType i = 1; i < MENU_MAX; i++)
     {
-      print_bind(i, fp);
+      print_bind(i, pf);
 
       //XXX need to elide last blank line
-      fprintf(fp, "\n");
+      pl = paged_file_new_line(pf);
+      paged_line_add_newline(pl);
     }
   }
   else
   {
-    print_bind(menu, fp);
+    print_bind(menu, pf);
   }
 }
 
 /**
  * print_macro - Display the macros for one menu
  * @param menu Menu type
- * @param fp   File to write to
+ * @param pf   PagedFile to write to
  * @retval num Number of macros
  */
-static int print_macro(enum MenuType menu, FILE *fp)
+static int print_macro(enum MenuType menu, struct PagedFile *pf)
 {
   struct BindingInfoArray bia_macro = ARRAY_HEAD_INITIALIZER;
+  struct PagedLine *pl = NULL;
 
   gather_menu(menu, NULL, &bia_macro);
   if (ARRAY_EMPTY(&bia_macro))
@@ -118,21 +157,51 @@ static int print_macro(enum MenuType menu, FILE *fp)
 
   ARRAY_SORT(&bia_macro, binding_sort, NULL);
   const int wm0 = measure_column(&bia_macro, 0);
+  int len0;
 
   const char *menu_name = mutt_map_get_name(menu, MenuNames);
 
+  struct Buffer *buf = buf_pool_get();
   struct BindingInfo *bi = NULL;
   ARRAY_FOREACH(bi, &bia_macro)
   {
-    if (bi->a[2]) // description
+    pl = paged_file_new_line(pf);
+
+    // macro menu
+    paged_line_add_colored_text(pl, MT_COLOR_FUNCTION, "macro");
+    paged_line_add_text(pl, " ");
+    paged_line_add_colored_text(pl, MT_COLOR_ENUM, menu_name);
+    paged_line_add_text(pl, " ");
+
+    // keybinding
+    len0 = paged_line_add_colored_text(pl, MT_COLOR_OPERATOR, bi->a[0]);
+    buf_printf(buf, "%*s", wm0 - len0, "");
+    paged_line_add_text(pl, buf_string(buf));
+    paged_line_add_text(pl, " ");
+
+    // macro text
+    buf_printf(buf, "\"%s\"", bi->a[1]);
+    paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
+
+    // description
+    if (bi->a[2])
     {
-      fprintf(fp, "macro %s %*s  \"%s\"  \"%s\"\n", menu_name, -wm0, bi->a[0],
-              bi->a[1], bi->a[2]);
+      paged_line_add_text(pl, " ");
+      buf_printf(buf, "\"%s\"", bi->a[2]);
+      paged_line_add_colored_text(pl, MT_COLOR_STRING, buf_string(buf));
     }
+
+    paged_line_add_newline(pl);
+  }
+  buf_pool_release(&buf);
+
+  // Apply striping
+  ARRAY_FOREACH(pl, &pf->lines)
+  {
+    if ((ARRAY_FOREACH_IDX_pl % 2) == 0)
+      pl->cid = MT_COLOR_STRIPE_ODD;
     else
-    {
-      fprintf(fp, "macro %s %*s  \"%s\"\n", menu_name, -wm0, bi->a[0], bi->a[1]);
-    }
+      pl->cid = MT_COLOR_STRIPE_EVEN;
   }
 
   const int count = ARRAY_SIZE(&bia_macro);
@@ -150,24 +219,26 @@ static int print_macro(enum MenuType menu, FILE *fp)
 /**
  * colon_macro - Dump the macros
  * @param menu Menu type
- * @param fp   File to write to
+ * @param pf   PagedFile to write to
  */
-static void colon_macro(enum MenuType menu, FILE *fp)
+static void colon_macro(enum MenuType menu, struct PagedFile *pf)
 {
   if (menu == MENU_MAX)
   {
+    struct PagedLine *pl = NULL;
     for (enum MenuType i = 1; i < MENU_MAX; i++)
     {
-      if (print_macro(i, fp) > 0)
+      if (print_macro(i, pf) > 0)
       {
         //XXX need to elide last blank line
-        fprintf(fp, "\n");
+        pl = paged_file_new_line(pf);
+        paged_line_add_newline(pl);
       }
     }
   }
   else
   {
-    print_macro(menu, fp);
+    print_macro(menu, pf);
   }
 }
 
@@ -177,8 +248,7 @@ static void colon_macro(enum MenuType menu, FILE *fp)
 enum CommandResult dump_bind_macro(struct Buffer *buf, struct Buffer *s,
                                    intptr_t data, struct Buffer *err)
 {
-  FILE *fp = NULL;
-  struct Buffer *tempfile = NULL;
+  struct PagedFile *pf = NULL;
   bool dump_all = false;
   bool bind = (data == 0);
   int rc = MUTT_CMD_ERROR;
@@ -195,22 +265,16 @@ enum CommandResult dump_bind_macro(struct Buffer *buf, struct Buffer *s,
     goto done;
   }
 
-  tempfile = buf_pool_get();
-  buf_mktemp(tempfile);
-  fp = mutt_file_fopen(buf_string(tempfile), "w");
-  if (!fp)
-  {
-    // L10N: '%s' is the file name of the temporary file
-    buf_printf(err, _("Could not create temporary file %s"), buf_string(tempfile));
+  pf = paged_file_new(NULL);
+  if (!pf)
     goto done;
-  }
 
   if (dump_all || mutt_istr_equal(buf_string(buf), "all"))
   {
     if (bind)
-      colon_bind(MENU_MAX, fp);
+      colon_bind(MENU_MAX, pf);
     else
-      colon_macro(MENU_MAX, fp);
+      colon_macro(MENU_MAX, pf);
   }
   else
   {
@@ -223,36 +287,28 @@ enum CommandResult dump_bind_macro(struct Buffer *buf, struct Buffer *s,
     }
 
     if (bind)
-      colon_bind(menu, fp);
+      colon_bind(menu, pf);
     else
-      colon_macro(menu, fp);
+      colon_macro(menu, pf);
   }
 
-  if (ftello(fp) == 0)
-  {
-    // L10N: '%s' is the name of the menu, e.g. 'index' or 'pager',
-    //       it might also be 'all' when all menus are affected.
-    buf_printf(err, bind ? _("%s: no binds for this menu") : _("%s: no macros for this menu"),
-               dump_all ? "all" : buf_string(buf));
-    goto done;
-  }
-  mutt_file_fclose(&fp);
+  // XXX Check reval from colon_bind/macro
+  // if (ftello(fp) == 0)
+  // {
+  //   // L10N: '%s' is the name of the menu, e.g. 'index' or 'pager',
+  //   //       it might also be 'all' when all menus are affected.
+  //   buf_printf(err, bind ? _("%s: no binds for this menu") : _("%s: no macros for this menu"),
+  //              dump_all ? "all" : buf_string(buf));
+  //   goto done;
+  // }
 
-  struct PagerData pdata = { 0 };
-  struct PagerView pview = { &pdata };
+  const char *banner = bind ? "bind" : "macro";
+  dlg_spager(pf, banner, NeoMutt->sub);
 
-  pdata.fname = buf_string(tempfile);
-
-  pview.banner = bind ? "bind" : "macro";
-  pview.flags = MUTT_PAGER_NO_FLAGS;
-  pview.mode = PAGER_MODE_OTHER;
-
-  mutt_do_pager(&pview, NULL);
   rc = MUTT_CMD_SUCCESS;
 
 done:
-  mutt_file_fclose(&fp);
-  buf_pool_release(&tempfile);
+  paged_file_free(&pf);
 
   return rc;
 }
