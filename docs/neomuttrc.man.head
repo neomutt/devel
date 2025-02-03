@@ -476,13 +476,13 @@ lb|lb
 l|l .
 Example Symbol	Description
 _
-\fCsidebar_format\fP	Config variable
-\fCstatus-color\fP, \fCimap\fP	Compiled-in feature
-\fCpgp-menu\fP, \fCgroup-related\fP	Function
-\fCindex-format-hook\fP, \fCtag-transforms\fP	Command
-\fCmy_var\fP	My variable
-\fClmdb\fP, \fCtokyocabinet\fP	Store (database)
-\fCHOME\fP, \fCCOLUMNS\fP	Environment variable
+\fIsidebar_format\fP	Config variable
+\fIstatus-color\fP, \fIimap\fP	Compiled-in feature
+\fIpgp-menu\fP, \fIgroup-related\fP	Function
+\fIindex-format-hook\fP, \fItag-transforms\fP	Command
+\fImy_var\fP	My variable
+\fIlmdb\fP, \fItokyocabinet\fP	Store (database)
+\fIHOME\fP, \fICOLUMNS\fP	Environment variable
 .TE
 .
 .IP
