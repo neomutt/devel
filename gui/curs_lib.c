@@ -540,7 +540,7 @@ void mw_what_key(void)
 
     if (ch == ERR)
     {
-      if (!isatty(0)) // terminal was lost
+      if (!isatty(STDIN_FILENO)) // terminal was lost
         mutt_exit(1);
 
       if (SigWinch)

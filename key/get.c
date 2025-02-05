@@ -255,7 +255,7 @@ struct KeyEvent mutt_getch(GetChFlags flags)
 
   if (ch == ERR)
   {
-    if (!isatty(0)) // terminal was lost
+    if (!isatty(STDIN_FILENO)) // terminal was lost
       mutt_exit(1);
 
     if (SigWinch)

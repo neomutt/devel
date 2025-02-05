@@ -1300,8 +1300,8 @@ main
   }
 
   /* Check for a batch send. */
-  if (!isatty(0) || !STAILQ_EMPTY(&queries) || !STAILQ_EMPTY(&alias_queries) ||
-      dump_variables || batch_mode)
+  if (!isatty(STDIN_FILENO) || !STAILQ_EMPTY(&queries) ||
+      !STAILQ_EMPTY(&alias_queries) || dump_variables || batch_mode)
   {
     OptNoCurses = true;
     sendflags |= SEND_BATCH;
@@ -1310,7 +1310,7 @@ main
   }
 
   /* Check to make sure stdout is available in curses mode. */
-  if (!OptNoCurses && !isatty(1))
+  if (!OptNoCurses && !isatty(STDOUT_FILENO))
     goto main_curses;
 
   /* This must come before mutt_init() because curses needs to be started
