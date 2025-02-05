@@ -1027,13 +1027,7 @@ done:
  * @retval 0 Success
  * @retval 1 Error
  */
-int
-#ifdef ENABLE_FUZZ_TESTS
-disabled_main
-#else
-main
-#endif
-(int argc, char *argv[], char *envp[])
+int main(int argc, char *argv[], char *envp[])
 {
   char *subject = NULL;
   char *include_file = NULL;

@@ -10,6 +10,8 @@
 #include "globals.h"
 #include "protos.h"
 
+bool StartupComplete = true;
+
 /**
  * log_disp_null - Discard log lines - Implements ::log_dispatcher_t - @ingroup logging_api
  */

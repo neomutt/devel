@@ -4,6 +4,8 @@
 #include <time.h>
 #include "mutt/lib.h"
 
+bool StartupComplete = true;
+
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
   if (size > 512)

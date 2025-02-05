@@ -66,11 +66,13 @@ default:	all
 NEOMUTT=	neomutt$(EXEEXT)
 NEOMUTTOBJS=	alternates.o commands.o conststrings.o copy.o editmsg.o \
 		enriched.o external.o flags.o git_ver.o globals.o handler.o \
-		help.o hook.o mailcap.o maillist.o main.o muttlib.o \
-		mutt_body.o mutt_config.o mutt_header.o mutt_logging.o \
-		mutt_mailbox.o mutt_signal.o mutt_socket.o mutt_thread.o \
-		mview.o mx.o recvcmd.o rfc3676.o score.o subjectrx.o system.o \
-		version.o
+		help.o hook.o mailcap.o maillist.o muttlib.o mutt_body.o \
+		mutt_config.o mutt_header.o mutt_logging.o mutt_mailbox.o \
+		mutt_signal.o mutt_socket.o mutt_thread.o mview.o mx.o \
+		recvcmd.o rfc3676.o score.o subjectrx.o system.o version.o
+@if !ENABLE_FUZZ_TESTS
+NEOMUTTOBJS=	main.o
+@endif
 
 @if USE_INOTIFY
 NEOMUTTOBJS+=	monitor.o
