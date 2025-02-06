@@ -1121,9 +1121,9 @@ enum MxStatus mx_mbox_check(struct Mailbox *m)
 
   enum MxStatus rc = m->mx_ops->mbox_check(m);
   if ((rc == MX_STATUS_NEW_MAIL) || (rc == MX_STATUS_REOPENED))
-  {
     mailbox_changed(m, NT_MAILBOX_INVALID);
-  }
+  if (rc == MX_STATUS_NEW_MAIL)
+    mailbox_changed(m, NT_MAILBOX_NEW_MAIL);
 
   return rc;
 }
@@ -1768,8 +1768,9 @@ enum MxStatus mx_mbox_check_stats(struct Mailbox *m, uint8_t flags)
   enum MxStatus rc = m->mx_ops->mbox_check_stats(m, flags);
   if (rc != MX_STATUS_ERROR)
   {
-    struct EventMailbox ev_m = { m };
-    notify_send(m->notify, NT_MAILBOX, NT_MAILBOX_CHANGE, &ev_m);
+    mailbox_changed(m, NT_MAILBOX_CHANGE);
+    if (rc == MX_STATUS_NEW_MAIL)
+      mailbox_changed(m, NT_MAILBOX_NEW_MAIL);
   }
 
   return rc;
@@ -1830,7 +1831,6 @@ int mx_toggle_write(struct Mailbox *m)
     mutt_message(_("Changes to folder will not be written"));
   }
 
-  struct EventMailbox ev_m = { m };
-  notify_send(m->notify, NT_MAILBOX, NT_MAILBOX_CHANGE, &ev_m);
+  mailbox_changed(m, NT_MAILBOX_CHANGE);
   return 0;
 }
