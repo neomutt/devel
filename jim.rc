@@ -1,0 +1,12 @@
+set help              = no
+set pager_index_lines = 6
+set spool_file        = 'mdir'
+set mbox_type         = 'Maildir'
+set sort              = reverse-date
+set timeout           = 2
+# set timeout           = 999
+set save_history = 10
+
+color index red default "~s test14"
+
+# vim: syntax=neomuttrc

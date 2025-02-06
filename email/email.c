@@ -76,7 +76,7 @@ void email_free(struct Email **ptr)
  */
 struct Email *email_new(void)
 {
-  static size_t sequence = 0;
+  static size_t sequence = 1;
 
   struct Email *e = MUTT_MEM_CALLOC(1, struct Email);
   STAILQ_INIT(&e->tags);

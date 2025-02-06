@@ -697,7 +697,7 @@ static enum MxStatus maildir_check(struct Mailbox *m)
 
   if (num_new > 0)
   {
-    mailbox_changed(m, NT_MAILBOX_INVALID);
+    mailbox_changed(m, NT_MAILBOX_UPDATE);
     m->changed = true;
   }
 
