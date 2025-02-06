@@ -129,7 +129,7 @@ int format_string(struct Buffer *buf, int min_cols, int max_cols, enum FormatJus
     }
 
     // How many screen cells will the character require?
-    if (escaped)
+    if (escaped || (CharsetIsUtf8 && mutt_mb_is_display_corrupting_utf8(wc)))
     {
       escaped = false;
       w = 0;
@@ -149,13 +149,8 @@ int format_string(struct Buffer *buf, int min_cols, int max_cols, enum FormatJus
     }
     else
     {
-#ifdef HAVE_ISWBLANK
-      if (iswblank(wc))
-        wc = ' '; // LCOV_EXCL_LINE
-      else
-#endif
-          if (!IsWPrint(wc))
-        wc = '?';
+      if (!IsWPrint(wc))
+        wc = ReplacementChar;
       w = wcwidth(wc);
     }
 

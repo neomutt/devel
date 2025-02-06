@@ -330,7 +330,7 @@ static size_t choose_block(char *d, size_t dlen, int col, const char *fromcode,
 }
 
 /**
- * finalize_chunk - Perform charset conversion and filtering
+ * finalize_chunk - Perform charset conversion
  * @param[out] res        Buffer where the resulting string is appended
  * @param[in]  buf        Buffer with the input string
  * @param[in]  charset    Charset to use for the conversion
@@ -346,7 +346,6 @@ static void finalize_chunk(struct Buffer *res, struct Buffer *buf, char *charset
   charset[charsetlen] = '\0';
   mutt_ch_convert_string(&buf->data, charset, cc_charset(), MUTT_ICONV_HOOK_FROM);
   charset[charsetlen] = end;
-  mutt_mb_filter_unprintable(&buf->data);
   buf_addstr(res, buf->data);
   FREE(&buf->data);
   buf_init(buf);

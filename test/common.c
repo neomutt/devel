@@ -314,9 +314,8 @@ const char *mutt_get_name(const char *s)
   return NULL;
 }
 
-bool subjrx_apply_mods(struct Envelope *env)
+void subjrx_apply_mods(struct Envelope *env)
 {
-  return false;
 }
 
 #ifdef USE_DEBUG_BACKTRACE
